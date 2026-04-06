@@ -1,0 +1,524 @@
+#program-2-pairs
+    //sort numbers before doing processing
+
+    //pass start index 0, size 32
+    imm r1 4
+    lshift r1 3
+    copy r1
+    dist r0
+
+    push r4+
+    call #merge-sort
+    pop
+
+    //find largest difference
+    //load the largest number at mem[62-63]
+    imm r0 4
+    lshift r0 3
+    imm r1 -1
+    add r0 r1
+    lshift r0 1 
+    copy r1     //r1 stores 62
+
+    load r1
+    copy r4
+    load r1 1
+    copy r5
+
+    //load the smallest number at mem[0-1]
+    dist r0
+    load r0
+    copy r6
+    dist r0
+    load r0 1
+    copy r7
+
+    //subtract
+    push r4+
+    call #subtract
+    pop
+
+    //store largest difference at mem[68-69]
+    copy r6
+    imm r0 4
+    lshift 2    //r0 becomes 16
+    imm r1 1
+    add r0 r1   //r0 becomes 17
+    lshift r0 2 //r0 becomes 68
+    copy r7     //move 68 to r7
+    copy r0 r6  //copy msb to r0
+    store r7    //store at 68
+    copy r0 r1  //copy lsb to r0
+    store r7 1  //store at 69
+
+    //find smallest difference between pairs
+    //initialize mem[66-67] with 65535
+    imm r1 -1
+    add r1 r7
+    add r0 r1 //r0 holds 66
+    copy r2
+    imm r0 -1
+    store r2   //store 0xFF in both 66 and 67
+    store r2 1
+
+    //loop counter in r3
+    dist r0
+    copy r3
+
+    //max at 31 in r4
+    imm r1 -1
+    imm r0 4
+    lshift r0 3
+    add r0 r1
+    copy r4
+
+    //increment in r1
+    imm r1 1
+
+    #difference-loop-start
+        //difference loop body
+        
+        push r1+ //get more registers
+
+        //load smaller number into r6 and r7
+        lshift r3 1
+        copy r2
+        load r2 1  //from address r3 * 2 + 1
+        copy r7 
+        load r2    //from address r3 * 2
+        copy r6
+
+        //load larger number into r4 and r5
+        add r3 r1
+        lshift r0 1
+        copy r2
+        load r2 1  //from address (r3 + 1) * 2 + 1
+        copy r5
+        load r2    //from address (r3 + 1) * 2
+        copy r4
+        pop        //needed to restore r2 to 66
+
+        push r2+   //prepare for function call
+        call #subtract
+        pop
+
+        //store subtraction in r6-r7
+        copy r6
+        copy r7 r1
+
+        //load minimum difference from memory into r4-r5
+        load r2
+        copy r4
+        load r2 1
+        copy r5
+
+        //perform unsigned comparison
+
+        //start with msb comparison
+        //if current < min 
+        cmp r6 r4
+        jumplt #update-min
+
+        //if min < current
+        cmp r4 r6
+        jump #difference-loop-end
+
+        //msbs are equal so compare lsbs
+        if current < min
+        cmp r7 r5
+        jumplt #update-min
+        jump #difference-loop-end
+
+        //store new minimum
+        #update-min
+        copy r0 r6
+        store r2
+        copy r0 r7
+        store r2 1
+
+        #difference-loop-end
+
+    //increment
+    add r3 r1
+    copy r3
+    cmp r3 r4
+    jumplt #difference-loop-start
+
+    jump #end
+
+//subtracts two double-precision numbers {r4, r5} - {r6, r7}
+//args: (r4: MSBs, r5: LSBs, r6: MSBs, r7: LSBs) => (r0: MSBs, r1: LSBs)
+//modifies: r0-r7
+#subtract
+    //get negation of the second number
+    copy r0 r6
+    copy r1 r7
+
+    push r2+
+    call #double-negate
+    pop
+
+    copy r6
+    copy r7 r1
+
+    //add the lsbs and msbs
+    add r4 r6
+    copy r2   //save msb sum in r2
+    add r5 r7
+    copy r3   //save lsb sum in r3
+    
+    //check for carry
+    //if sum < r5 a carry occurred
+    cmp r3 r5
+    jumplt #carry
+
+    //if sum < r7 a carry occurred
+    cmp r3 r7 
+    jumplt #carry
+    jump #no-carry
+
+    #carry
+    imm r1 1
+    add r2 r1  //add 1 to msb sum and store in r0
+    copy r1 r3 //copy lsb sum to r1
+    return
+
+    #no-carry
+    copy r0 r2 //store msb sum in r0
+    copy r1 r3 //store lsb sum in r1
+    return
+
+//negates a double-precision number
+//args: (r0: MSBs, r1: LSBs) => (r0: MSBs, r1: LSBs)
+#double-negate
+    //save to upper registers
+    copy r6
+    copy r7 r1
+
+    //negate lsbs
+    not r7
+    copy r5
+    imm r1 1
+    add r5 r1
+    copy r5  //holds lsbs after adding
+
+    //invert msbs
+    not r6
+    copy r6
+
+    //compare bit 7 to check carry
+    //if bit 7 of original is 0, no carry possible
+    rshift r7 4
+    rshift r0 3
+    cmp r0 r1
+    jumplt #no-carry
+        //if bit 7 is 1, check if bit 7 after sum became zero
+        rshift r5 4
+        rshift r0 3
+        cmp r0 r1
+        jumplt #no-carry
+            //carry occurred so add to upper
+            add r6 r1  //new msbs in r0
+            copy r1 r5 //new lsbs in r1
+            return
+
+    #no-carry //prepare return values
+    copy r0 r6
+    copy r1 r5
+    return
+
+//sorts the array in the memory locations 0-63
+//uses memory locations 64-127 as temporary space
+//args: (r0: index, r1: size) => (r0: index, r1: size)
+#merge-sort
+    //return if subarray is size 1
+    imm r2 2
+    cmp r1 r2
+    jumplt #merge-sort-return
+        //save first index to r7
+        copy r7
+
+        //split array and store new length in r6
+        rshift r1 1
+        copy r6
+
+        //setup left recursive call
+        copy r0 r7 //copy index
+        copy r1 r6 //copy size
+        push r2+   //keep return values in r0/r1
+        call #merge-sort
+        pop
+
+        //setup right recursive call
+        //r1 still contains the size
+        add r6 r7 //6 7 haha
+        push r2+   //keep return values in r0/r1
+        call #merge-sort
+        pop
+
+        //setup merge function call
+        copy r0 r7 //copy index
+        //r1 still contains the size
+        push r2+
+        call #merge
+        pop
+
+    #merge-sort-return
+    return //last #merge call already placed correct index in r0 and size in r1 for return
+
+//merges two sorted arrays with the same size placed continguously in memory and returns the index of the first element of the new array and the new array's size
+//args: (r0: index, r1: size) => (r0: index, r1: size)
+#merge
+    //start by copying left array into memory to allow sorting in place
+
+    //max index is at r0 + size
+    copy r0 r7 //save index 0 address to r7 first
+    add r0 r1
+    copy r6    //save max index in r6
+
+    //calculate offset for temp storage
+    imm r0 2
+    lshift r0 4
+    copy r3    //index offset is 32
+
+    imm r5 1   //save increment in r5
+    copy r4 r7 //initialize loop counter/index to first index in r4
+    #merge-precopy-start
+        push r1+ //save constants and index from loop control to stack so that the registers can be safely reused in the loop body
+
+        //load lower byte
+        lshift r4 1 
+        copy r7 //first byte address in r7
+        load r7
+        copy r5 //store the loaded byte in r5
+
+        //load upper byte
+        load r7 1
+        copy r6 //store the loaded byte in r6
+        
+        //store bytes
+        add r3 r4
+        lshift r0 1
+        copy r2    //offset address at 2 * (index + 32)
+        copy r0 r5
+        store r2   //store lower byte 
+        copy r0 r6
+        store r2 1 //store upper byte
+
+        pop //restore registers
+
+    //loop conditions
+    add r4 r5 //increment
+    copy r4
+    cmp r4 r6 //compare
+    jumplt #merge-precopy-start
+
+    //left array counter: r2
+    //right array counter: r3
+    copy r2 r7
+    add r2 r1 //r3 = start index + subarray size
+    copy r3
+
+    //put merge output index into r5 starting at r7
+    copy r5 r7
+
+    //calculate offset to read left subarray
+    imm r0 2
+    lshift r0 4
+    copy r4 //offset is 32 elements
+
+    //save subarray size
+    copy r6 r1
+
+    //set up for the merge loop
+    //registers used here:
+    //r0, r1 - output from inner stack
+    //r2, r3 - array counters
+    //r4     - left array read offset
+    //r5     - write output index
+    //r6     - subarray size
+    //r7     - output array start index
+
+    #merge-loop-start
+        push r2+ //save to stack to use more registers
+
+        //load upper right into r6
+        add r1 r3 //right index + subarray size
+        lshift r0 1
+        copy r7  //right address in r7
+        load r7
+        copy r6
+
+        //load upper left into r5
+        add r2 r4 //left index + offset
+        lshift r0 1
+        copy r3   //left address in r3
+        load r3
+        copy r5
+
+        //reduce to signs
+        rshift r6 4
+        rshift r0 3
+        copy r1 //right element sign in r1
+        rshift r5 4
+        rshift r0 3 //left element sign in r0
+
+        //if r0 < r1, right must be negative
+        cmp r0 r1
+        jumplt #larger-left-upper
+
+        //if r1 < r0, left must be negative
+        cmp r1 r0
+        jumplt #larger-right-upper
+
+        //both have the same sign so use direct comparison
+
+        //if r5 < r6 right is larger
+        cmp r5 r6
+        jumplt #larger-right-upper
+
+        //if r6 < r5 left is larger
+        cmp r6 r5
+        jumplt #larger-left-upper
+
+        //upper byte must be same so load lower bits
+        //load lower right
+        load r7 1
+        copy r6 //can overwrite one byte since upper bytes are both the same
+
+        //load lower left
+        load r3 1
+        copy r2 //store left in r2
+
+        //compare lower bytes
+        //if r6 < r2 left is larger
+        cmp r6 r2
+        jumplt #larger-left
+
+        //right is larger or both are equal so jump
+        jump #larger-right
+
+        #larger-right-upper
+        copy r1 r6 //upper in r1
+        load r7 1  //lower in r0
+        pop //restore registers except saved r0/r1
+        jump #write-increment-right
+
+        #larger-left-upper
+        copy r1 r5 //upper in r1
+        load r3 1  //lower in r0
+        pop //restore registers except saved r0/r1
+        jump #write-increment-left
+
+        #larger-right
+        copy r1 r5 //upper in r1
+        copy r0 r6 //lower in r0
+        pop //restore registers except saved r0/r1
+        jump #write-increment-right
+
+        #larger-left
+        copy r1 r5 //upper in r1
+        copy r0 r2 //lower in r0
+        pop //restore registers except saved r0/r1
+        jump #write-increment-left
+
+        //end of merge loop
+        #end-comparison
+
+        //increment write index
+        imm r0 1
+        add r5 r0
+        copy r5
+
+    //if one counter finishes, exit loop
+    cmp r2 r6
+    jumplt #check-1-pass
+    jump #merge-loop-end
+
+    #check-1-pass
+    cmp r3 r6
+    jumplt #merge-loop-start
+
+    #merge-loop-end
+
+    //finish any leftover merge elements
+    //check if left is unfinished
+    imm r1 1
+    cmp r2 r6
+    jumplt #finish-left
+    jump #merge-end //if right is unfinished no change needed
+
+    //finish copying left elements
+    #finish-left
+    imm r3 4
+    lshift r3 4
+    copy r3 //address offset 64
+
+    #finish-left-loop
+        //load elements
+        lshift r2 1
+        add r0 r3
+        copy r7
+        load r7    //load upper from (r2 * 2) + 64
+        copy r4
+        load r7 1  //load lower from (r2 * 3) + 64 + 1
+        copy r5
+
+        //copy to original array
+        lshift r2 1
+        copy r7
+        copy r0 r4
+        load r7    //store upper in (r2 * 2)
+        copy r0 r5
+        load r7 1  //store lower in (r2 * 2) + 1
+
+    add r2 r1
+    copy r2
+    cmp r2 r6
+    jumplt #finish-left-loop
+
+    #merge-end
+    //store start index in r0 and size in r1
+    lshift r6 1
+    copy r1
+    copy r0 r7
+
+    return //completed merge
+
+#write-increment-right
+    //write to original array from write index
+    push r4+   //get more registers
+    copy r0 r7 //save lower byte
+    lshift r5 1
+    copy r5
+    copy r0 r7
+    store r5 1 //store lower byte
+    copy r0 r1
+    store r5   //store upper byte
+    pop        //restore registers
+
+    //increment left counter
+    imm r0 1
+    add r2 r0
+    copy r2
+    #jump end-comparison
+
+#write-increment-left
+    //write to original array from write index
+    push r4+   //get more registers
+    copy r0 r7 //save lower byte
+    lshift r5 1
+    copy r5
+    copy r0 r7
+    store r5 1 //store lower byte
+    copy r0 r1
+    store r5   //store upper byte
+    pop        //restore registers
+
+    //increment left counter
+    imm r0 1
+    add r2 r0
+    copy r2
+    #jump end-comparison
+
+#end

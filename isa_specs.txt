@@ -1,0 +1,64 @@
+9.86KB instruction memory:
+three sections
+    - 1024 instructions x 9 bits (8 bit pc)
+    - 64 entries x 10 bits constant address memory (6 bit addressing)
+    - address format:
+        | address (8) | linked (1) | conditional (1) |  
+
+64b register file:
+8 registers x 8 bits (3 bit addressing)
+
+2.00KB data memory:
+    - 256 entries x 8 bits (8 bit addressing)
+
+1.09KB stack:
+    - block layout: 
+        - 7 registers x 8 bits
+        - 1 mask register x 2 bits
+        - 1 pc register x 10 bits
+    - 16 depth
+
+unused combinations:
+    - load/stores
+
+instruction format
+
+jump   - 000 (counting instructions, conditional based on flag)
+| opcode (3) | address (6) |
+
+cmp    - 001 (sets conditional flag for unsigned less than)
+| opcode (3) | op1 (3) | op2 (3) |
+
+copy   - 010
+| opcode (3) | destination (3) | source (3)
+
+stack  - 011
+| opcode (3) | push (0) / pop (1) | preserve r4-r7 (11) / r3-r7 (10) / r2-r7 (01) / r1-r7 (00) | 000 |
+
+ret    - 011 (returns)
+| opcode (3) | 111000 |
+
+imm    - 011 (cannot load zero, 1-6, and -1)
+| opcode (3) | destination (3) | immediate (3) |
+
+mem    - 100 (load into r0 / store from r0)
+| opcode (3) | address  (3) | load (1) / store (0) | offset (2) |
+
+add    - 101
+| opcode (3) | op1 (3) | op2 (3) |
+
+shift -  110 (shift immediate of 0 shifts by 4 positions)
+| opcode (3) | op1 (3) | imm (2) | dir (1) |
+
+dist   - 111 (hamming distance)
+| opcode (3) | op1 (3) | op2 (3) |
+
+logic - 111
+| opcode (3) | op1 (3) | type |
+000 - and
+001 - or
+010 - xor
+011 - hamming distance
+100 - negation
+101 - not
+111 - pause until next start signal

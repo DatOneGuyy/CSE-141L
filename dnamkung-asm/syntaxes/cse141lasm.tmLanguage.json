@@ -1,0 +1,68 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "CSE 141L Assembly",
+  "scopeName": "source.cse141lasm",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#labels"
+    },
+    {
+      "include": "#instructions"
+    },
+    {
+      "include": "#registers"
+    },
+    {
+      "include": "#numbers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "match": "//.*$",
+          "name": "comment.line.double-slash.cse141lasm"
+        }
+      ]
+    },
+    "labels": {
+      "patterns": [
+        {
+          "match": "#[a-zA-Z0-9_-]+",
+          "name": "entity.name.function.label.cse141lasm"
+        }
+      ]
+    },
+    "instructions": {
+      "patterns": [
+        {
+          "match": "\\b(jump|jumplt|call|imm|copy|dist|not|add|lshift|rshift|store|load|push|pop|return|cmp)\\b",
+          "name": "keyword.control.instruction.cse141lasm"
+        }
+      ]
+    },
+    "registers": {
+      "patterns": [
+        {
+          "match": "\\b(r[0-7]\\+?)\\b",
+          "name": "variable.language.register.cse141lasm"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "match": "\\b-?[0-9]+\\b",
+          "name": "constant.numeric.decimal.cse141lasm"
+        },
+        {
+          "match": "\\b0[xX][0-9a-fA-F]+\\b",
+          "name": "constant.numeric.hex.cse141lasm"
+        }
+      ]
+    }
+  }
+}

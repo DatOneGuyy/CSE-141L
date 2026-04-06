@@ -1,0 +1,29 @@
+{
+  "name": "cse-141l-assembly",
+  "displayName": "CSE 141L Custom Assembly",
+  "description": "Syntax highlighting for the CSE 141L Custom ISA",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "cse141lasm",
+        "aliases": ["CSE 141L Assembly", "cse141lasm"],
+        "extensions": [".asm", ".s"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "cse141lasm",
+        "scopeName": "source.cse141lasm",
+        "path": "./syntaxes/cse141lasm.tmLanguage.json"
+      }
+    ]
+  }
+}
