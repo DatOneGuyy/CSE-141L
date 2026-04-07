@@ -59,6 +59,19 @@ logic - 111
 001 - or
 010 - xor
 011 - hamming distance
-100 - negation
+100 - negation 
 101 - not
+110 - arithmetic right shift by 1
 111 - pause until next start signal
+
+operations in place
+000 and
+001 or
+010 get
+011 arshift
+
+standard
+100 - hamming distance
+101 - not
+110 - negation
+111 - interrupt
