@@ -48,7 +48,7 @@ add    - 101
 | opcode (3) | op1 (3) | op2 (3) |
 
 shift -  110 (shift immediate of 0 shifts by 4 positions)
-| opcode (3) | op1 (3) | imm (2) | dir (1) |
+| opcode (3) | op1 (3) | dir (1) 0 left, 1 right | imm (2) |
 
 dist   - 111 (hamming distance)
 | opcode (3) | op1 (3) | op2 (3) |
