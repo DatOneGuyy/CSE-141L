@@ -108,7 +108,7 @@
         cmp r1 r7 //if r5 < r7, current difference is smaller
         jumplt #smaller-current
         jump #larger-current-always //skip storing otherwise
-
+        
         #smaller-current
         //replace stored minimum
         copy r6
