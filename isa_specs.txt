@@ -75,3 +75,13 @@ standard
 101 - not
 110 - negation
 111 - interrupt
+
+new options
+000 - dist
+001 - not
+010 - and
+011 - xor
+100 - addc
+101 - subc
+110 - clshift
+111 - arshift
