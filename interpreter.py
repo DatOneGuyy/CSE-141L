@@ -44,10 +44,10 @@ def dist(a, b):
 
 def print_mem():
     out = ""
-    for i in range(len(data_memory)):
+    for i in range(4):
         out = out + f"[{i}, {data_memory[i]}], "
 
-    print(f"Data memory: {out[:-2]}")
+    print(f"Memory: {data_memory[:4]}")
 
 def min_max_hamming_dist(byte_list):
     if len(byte_list) != 64:
@@ -70,11 +70,6 @@ def min_max_hamming_dist(byte_list):
             max_dist = dist
             
     return (int(min_dist), int(max_dist))
-
-def unsigned(n):
-    if n < 0:
-        n += 256
-    return n
 
 mapping = {}
 delabeled_data = []
@@ -151,16 +146,16 @@ def parse_memory_to_signed_32bit(byte_list, big_endian=True):
             b3 = byte_list[i + 0]    
             
         # Combine the four bytes into a 32-bit unsigned integer
-        unsigned_val = b0 << 24 + b1 << 16 + b2 << 8 + b3
+        signed_val = (b0 << 24) | (b1 << 16) | (b2 << 8) | (b3)
         
         # Convert to a signed two's complement integer
         # If the highest bit (bit 15) is 1, the number is negative
-        if unsigned_val >= 2147483648:  # 0x8000_0000
-            signed_val = unsigned_val - 65536  # 0x1_0000_0000
-        else:
-            signed_val = unsigned_val
+        
+        if signed_val > 2147483647:  # 0xFFFF_FFFF
+            signed_val = signed_val - 4294967296 # 0x1_0000_0000
         #print(f"Index: {i}, Value: {signed_val}")
         int32_list.append(signed_val)
+    return int32_list
 
 def smallest_diff(input):
     min = 65535
@@ -187,17 +182,22 @@ while pc < len(data):
     match tokens[0]:
         case "flag":
             flag_count += 1
+            print(f"Flag reached with counter: {flag_count}")
+            if (flag_count == -1):
+                break
         case "not":
             registers[0] = ~registers[int(tokens[1][1:])] & 0xFF
             print(f"Registers: {registers}")
         case "imm":
-            registers[int(tokens[1][1:])] = int(tokens[2])
+            registers[int(tokens[1][1:])] = int(tokens[2]) & 0xFF
             print(f"Registers: {registers}")
         case "lshift":
             registers[0] = registers[int(tokens[1][1:])] << int(tokens[2])
+            carry = (registers[0] & 0x100) >> 8
+            registers[0] = registers[0] & 0xFF
             print(f"Registers: {registers}")
         case "rshift":
-            registers[0] = (registers[int(tokens[1][1:])] % 0x100) >> int(tokens[2])
+            registers[0] = (registers[int(tokens[1][1:])] & 0xFF) >> int(tokens[2])
             print(f"Registers: {registers}")
         case "copy":
             if (len(tokens) == 2):
@@ -212,27 +212,29 @@ while pc < len(data):
                 data_memory[registers[int(tokens[1][1:])] + int(tokens[2])] = registers[0]
             print_mem()
         case "add":
-            result = registers[int(tokens[1][1:])] % 256 + registers[int(tokens[2][1:])] % 256
+            result = (registers[int(tokens[1][1:])] & 0xFF) + (registers[int(tokens[2][1:])] & 0xFF)
             if result > 255:
                 carry = 1
             else:
                 carry = 0
-            registers[0] = result % 256
+            registers[0] = result & 0xFF
             print(f"Registers: {registers}")
         case "addc":
-            result = registers[int(tokens[1][1:])] % 256 + registers[0] % 256 + carry
+            result = (registers[int(tokens[1][1:])] & 0xFF) + (registers[0] & 0xFF) + carry
             if result > 255:
                 carry = 1
             else:
                 carry = 0
-            registers[0] = result % 256
+            registers[0] = result & 0xFF
             print(f"Registers: {registers}")
         case "sub":
-            registers[0] -= registers[int(tokens[1][1:])] % 256
-            registers[0] = registers[0] % 256
+            registers[0] -= (registers[int(tokens[1][1:])] & 0xFF)
+            registers[0] = registers[0] & 0xFF
             print(f"Registers: {registers}")
         case "clshift":
-            registers[0] = (registers[int(tokens[1][1:])] % 256 << 1) + carry
+            registers[0] = (registers[int(tokens[1][1:])] << 1) | carry
+            carry = (registers[0] & 0x100) >> 8
+            registers[0] = registers[0] % 256
             print(f"Registers: {registers}")
         case "push":
             frame = registers[1:]
@@ -268,8 +270,11 @@ while pc < len(data):
             registers[0] = dist(registers[int(tokens[1][1:])], registers[0])
             print(f"Registers: {registers}")
         case "cmp":
-            less = unsigned(registers[int(tokens[1][1:])]) < unsigned(registers[int(tokens[2][1:])])
+            less = (registers[int(tokens[1][1:])] & 0xFF) < (registers[int(tokens[2][1:])] & 0xFF)
             print(f"Flag => less: {less}")
+        case "xor":
+            registers[0] = registers[int(tokens[1][1:])] ^ registers[0]
+            print(f"Registers: {registers}")
         case "jumplt":
             if less:
                 if tokens[1][0] != "#":
@@ -289,20 +294,16 @@ while pc < len(data):
             pc = stack[-1][-1]
             print(f"Returned to {pc}")
             continue
-        case "clcshift":
-            pass
         
-            
-
     pc += 1
 end = time.perf_counter()
 print(f"Simulation time: {end - start:.6f} seconds")
 print(f"Instructions executed: {counter}")
 print(f"Flag count: {flag_count}")
+print(f"Original bytes: {input_memory}")
 print(f"Original input: {parse_memory_to_signed_16bit(input_memory)}")
 print(f"Lower memory: {parse_memory_to_signed_16bit(data_memory[:64])}")
 print(f"Upper memory: {parse_memory_to_signed_16bit(data_memory[64:])}")
-print(f"32-bit upper memory: {parse_memory_to_signed_32bit(data_memory[64:])}")
 
 sorted = parse_memory_to_signed_16bit(input_memory)
 sorted.sort()
@@ -310,15 +311,22 @@ print(f"Solution: {sorted}")
 n = sorted[31] - sorted[0]
 m = smallest_diff(sorted)
 
-print(f"\nProgram 2: ")
-print(f"Expected: {n}, {m}")
-print(f"Result: {data_memory[66] * 256 + data_memory[67]}, {data_memory[68] * 256 + data_memory[69]}")
-
 hamming_solution = min_max_hamming_dist(input_memory)
 print(f"\nProgram 1: ")
 print(f"Expected: {hamming_solution}")
 print(f"Result: ({data_memory[64]}, {data_memory[65]})")
 
+print(f"\nProgram 2: ")
+print(f"Expected: {n}, {m}")
+print(f"Result: {data_memory[66] * 256 + data_memory[67]}, {data_memory[68] * 256 + data_memory[69]}")
+
+input16 = parse_memory_to_signed_16bit(input_memory)
+multiplication_solution = []
+for i in range(0, 32, 2):
+    multiplication_solution.append(input16[i] * input16[i + 1])
+print(f"\nProgram 3: ")
+print(f"Expected: {multiplication_solution}")
+print(f"Result: {parse_memory_to_signed_32bit(data_memory[64:])}")
 """
 print(f"mem[64, 65]: {data_memory[64]:08b}, {data_memory[65]:08b}")
 print(f"Solution   : {solution[0]:08b}, {solution[1]:08b}")
