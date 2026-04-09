@@ -39,7 +39,7 @@
     "instructions": {
       "patterns": [
         {
-          "match": "\\b(jump|jumplt|call|imm|copy|dist|not|add|lshift|rshift|store|load|push|pop|return|cmp|and|xor|addc|subc|clshift|arshift)\\b",
+          "match": "\\b(jump|jumplt|call|imm|copy|dist|not|add|lshift|rshift|store|load|push|pop|return|cmp|and|xor|addc|sub|clshift|arshift)\\b",
           "name": "keyword.control.instruction.cse141lasm"
         }
       ]

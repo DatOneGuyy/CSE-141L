@@ -123,6 +123,45 @@ def parse_memory_to_signed_16bit(byte_list, big_endian=True):
         int16_list.append(signed_val)
         
     return int16_list
+
+def parse_memory_to_signed_32bit(byte_list, big_endian=True):
+    """
+    Takes a list of 64 bytes and converts them into 16 32-bit two's complement integers.
+    
+    Args:
+        byte_list (list): A list of 64 integers, each between 0 and 255.
+        big_endian (bool): If True, treats index `i` as MSB and `i+1` as LSB (your assembly logic).
+                           If False, treats index `i` as LSB and `i+1` as MSB (ISA spec standard).
+    """
+    if len(byte_list) != 64:
+        raise ValueError(f"Expected exactly 64 bytes, got {len(byte_list)}")
+        
+    int32_list = []
+    
+    for i in range(0, 64, 4):
+        if big_endian:
+            b0 = byte_list[i]
+            b1 = byte_list[i + 1]
+            b2 = byte_list[i + 2]
+            b3 = byte_list[i + 3]            
+        else:
+            b0 = byte_list[i + 3]
+            b1 = byte_list[i + 2]
+            b2 = byte_list[i + 1]
+            b3 = byte_list[i + 0]    
+            
+        # Combine the four bytes into a 32-bit unsigned integer
+        unsigned_val = b0 << 24 + b1 << 16 + b2 << 8 + b3
+        
+        # Convert to a signed two's complement integer
+        # If the highest bit (bit 15) is 1, the number is negative
+        if unsigned_val >= 2147483648:  # 0x8000_0000
+            signed_val = unsigned_val - 65536  # 0x1_0000_0000
+        else:
+            signed_val = unsigned_val
+        #print(f"Index: {i}, Value: {signed_val}")
+        int32_list.append(signed_val)
+
 def smallest_diff(input):
     min = 65535
     for i in range(len(input) - 1):
@@ -134,6 +173,7 @@ pc = 0
 data = delabeled_data
 counter = 0
 flag_count = 0
+carry = 0
 input_memory = [i for i in data_memory[:64]]
 while pc < len(data):
     counter += 1
@@ -172,7 +212,27 @@ while pc < len(data):
                 data_memory[registers[int(tokens[1][1:])] + int(tokens[2])] = registers[0]
             print_mem()
         case "add":
-            registers[0] = (registers[int(tokens[1][1:])] + registers[int(tokens[2][1:])]) % 256
+            result = registers[int(tokens[1][1:])] % 256 + registers[int(tokens[2][1:])] % 256
+            if result > 255:
+                carry = 1
+            else:
+                carry = 0
+            registers[0] = result % 256
+            print(f"Registers: {registers}")
+        case "addc":
+            result = registers[int(tokens[1][1:])] % 256 + registers[0] % 256 + carry
+            if result > 255:
+                carry = 1
+            else:
+                carry = 0
+            registers[0] = result % 256
+            print(f"Registers: {registers}")
+        case "sub":
+            registers[0] -= registers[int(tokens[1][1:])] % 256
+            registers[0] = registers[0] % 256
+            print(f"Registers: {registers}")
+        case "clshift":
+            registers[0] = (registers[int(tokens[1][1:])] % 256 << 1) + carry
             print(f"Registers: {registers}")
         case "push":
             frame = registers[1:]
@@ -229,6 +289,10 @@ while pc < len(data):
             pc = stack[-1][-1]
             print(f"Returned to {pc}")
             continue
+        case "clcshift":
+            pass
+        
+            
 
     pc += 1
 end = time.perf_counter()
@@ -238,16 +302,21 @@ print(f"Flag count: {flag_count}")
 print(f"Original input: {parse_memory_to_signed_16bit(input_memory)}")
 print(f"Lower memory: {parse_memory_to_signed_16bit(data_memory[:64])}")
 print(f"Upper memory: {parse_memory_to_signed_16bit(data_memory[64:])}")
+print(f"32-bit upper memory: {parse_memory_to_signed_32bit(data_memory[64:])}")
+
 sorted = parse_memory_to_signed_16bit(input_memory)
 sorted.sort()
 print(f"Solution: {sorted}")
 n = sorted[31] - sorted[0]
 m = smallest_diff(sorted)
+
+print(f"\nProgram 2: ")
 print(f"Expected: {n}, {m}")
 print(f"Result: {data_memory[66] * 256 + data_memory[67]}, {data_memory[68] * 256 + data_memory[69]}")
 
 hamming_solution = min_max_hamming_dist(input_memory)
-print(f"\nExpected: {hamming_solution}")
+print(f"\nProgram 1: ")
+print(f"Expected: {hamming_solution}")
 print(f"Result: ({data_memory[64]}, {data_memory[65]})")
 
 """

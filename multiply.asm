@@ -1,5 +1,52 @@
 //main function 3
 #program-3-multiply
+    //initialize loop counter in r7
+    dist r0
+    copy r7
+
+    //max count in r4 - address 64
+    imm r0 4
+    lshift r0 4
+    copy r4
+
+    //write address in r5 - begins at 64
+    copy r5 r4
+
+    #main-loop-start
+        push r4+
+
+        //load arguments
+        load r7
+        copy r4
+        load r7 1
+        copy r5
+        load r7 2
+        copy r6
+        load r7 3
+        copy r7
+
+        push r4+
+        call #multiply-16
+        pop
+        pop //restore write address
+
+        //store result
+        copy r0 r2
+        store r5
+        copy r0 r3
+        store r5 1
+
+        //increment write address
+        imm r0 4
+        add r5 r0
+        copy r5
+
+    //increment counter, then jump
+    imm r0 4
+    add r7 r0
+    copy r7
+    cmp r7 r4
+    jumplt #main-loop-start
 
     jump #end
 
@@ -7,7 +54,7 @@
 // Args: (r4: Mult MSB, r5: Mult LSB, r6: Mcand MSB, r7: Mcand LSB) 
 // Returns: Product in (r2: MSB, r3: LSB)
 #multiply-16
-    
+    flag
     // 1. Store Multiplicand to memory to free r6 and r7
     dist r0       // r0 = 0
     copy r2       // r2 = 0 (temporarily use r2 as the memory pointer)
@@ -32,38 +79,38 @@
     lshift r1 2   // r0 = 4 << 2 (16)
     copy r1       // r1 = 16
 
-#multiply-loop
-    
-    // STEP 1: Shift Product Left by 1
-    lshift r3 1   // r0 = LSB << 1 (MSB falls into Carry Flag)
-    copy r3       // r3 = r0
-    rlc r2        // r0 = (r2 << 1) | Carry Flag 
-    copy r2       // r2 = r0
-
-    // STEP 2: Extract MSB of Multiplier (r4)
-    rshift r4 4   // r0 = r4 >> 4
-    rshift r0 3   // r0 = r0 >> 3 (r0 is now perfectly 0x00 or 0x01)
-    
-    // STEP 3: Conditional Addition
-    cmp r0 r7     // Is MSB < 1? (i.e., is it 0?)
-    jumplt #skip-add 
+    #multiply-loop
         
-        // If MSB == 1, add Multiplicand to Product
-        load r6 1     // r0 = mem[1] (Multiplicand LSB)
-        add r3 r0     // r0 = r3 + r0 (Sets Carry Flag)
-        copy r3
+        // STEP 1: Shift Product Left by 1
+        lshift r3 1   // r0 = LSB << 1 (MSB falls into Carry Flag)
+        copy r3       // r3 = r0
+        clshift r2    // r0 = (r2 << 1) | Carry Flag 
+        copy r2       // r2 = r0
 
-        load r6       // r0 = mem[0] (Multiplicand MSB)
-        addc r2       // r0 = r0 + r2 + Carry Flag! (Single operand addc)
-        copy r2
+        // STEP 2: Extract MSB of Multiplier (r4)
+        rshift r4 4   // r0 = r4 >> 4
+        rshift r0 3   // r0 = r0 >> 3 (r0 is now perfectly 0x00 or 0x01)
+        
+        // STEP 3: Conditional Addition
+        cmp r0 r7     // Is MSB < 1? (i.e., is it 0?)
+        jumplt #skip-add 
+            
+            // If MSB == 1, add Multiplicand to Product
+            load r6 1     // r0 = mem[1] (Multiplicand LSB)
+            add r3 r0     // r0 = r3 + r0 (Sets Carry Flag)
+            copy r3
 
-    #skip-add
-    
-    // STEP 4: Shift Multiplier Left by 1
-    lshift r5 1   // r0 = LSB << 1 (MSB falls into Carry Flag)
-    copy r5
-    rlc r4        // r0 = (r4 << 1) | Carry Flag
-    copy r4
+            load r6       // r0 = mem[0] (Multiplicand MSB)
+            addc r2       // r0 = r0 + r2 + Carry Flag! (Single operand addc)
+            copy r2
+
+        #skip-add
+        
+        // STEP 4: Shift Multiplier Left by 1
+        lshift r5 1   // r0 = LSB << 1 (MSB falls into Carry Flag)
+        copy r5
+        clshift r4        // r0 = (r4 << 1) | Carry Flag
+        copy r4
     
     // STEP 5: Decrement Counter (8-bit sub)
     copy r0 r1    // r0 = Loop Counter
@@ -76,3 +123,5 @@
 
     // Loop finished. Final 16-bit product is safely sitting in r2 and r3.
     return
+
+#end
