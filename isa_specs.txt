@@ -50,9 +50,6 @@ add    - 101
 shift -  110 (shift immediate of 0 shifts by 4 positions)
 | opcode (3) | op1 (3) | dir (1) 0 left, 1 right | imm (2) |
 
-dist   - 111 (hamming distance)
-| opcode (3) | op1 (3) | op2 (3) |
-
 logic - 111
 | opcode (3) | op1 (3) | type |
 000 - and
@@ -84,4 +81,3 @@ new options
 100 - addc
 101 - subc
 110 - clshift
-111 - arshift

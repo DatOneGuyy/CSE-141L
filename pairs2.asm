@@ -189,33 +189,33 @@
     cmp r1 r2
     jumplt #merge-sort-return
 
-    //save first index to r7
-    copy r7
+        //save first index to r7
+        copy r7
 
-    //split array and store new length in r6
-    rshift r1 1
-    copy r6
+        //split array and store new length in r6
+        rshift r1 1
+        copy r6
 
-    //setup left recursive call
-    copy r0 r7 //copy index
-    copy r1 r6 //copy size
-    push r2+   //keep return values in r0/r1
-    call #merge-sort
-    pop
+        //setup left recursive call
+        copy r0 r7 //copy index
+        copy r1 r6 //copy size
+        push r2+   //keep return values in r0/r1
+        call #merge-sort
+        pop
 
-    //setup right recursive call
-    add r6 r7  // calculate right start index
-    copy r1 r6 // restore the split size to r1
-    push r2+   
-    call #merge-sort
-    pop
+        //setup right recursive call
+        add r6 r7  // calculate right start index
+        copy r1 r6 // restore the split size to r1
+        push r2+   
+        call #merge-sort
+        pop
 
-    //setup merge function call
-    copy r0 r7 // restore left start index
-    copy r1 r6 // restore the split size to r1
-    push r2+
-    call #merge
-    pop
+        //setup merge function call
+        copy r0 r7 // restore left start index
+        copy r1 r6 // restore the split size to r1
+        push r2+
+        call #merge
+        pop
 
     #merge-sort-return
     return //last #merge call already placed correct index in r0 and size in r1 for return
@@ -295,22 +295,23 @@
         cmp r7 r6
         jumplt #smaller-right-msb
 
-        //MSBs are equal so load the LSBs
-        pop
-        push r2+
+            //MSBs are equal so load the LSBs
+            pop
+            push r2+
 
-        //load lower right into r1
-        add r3 r4 //right index + right array start
-        copy r3
-        load r3 1
-        copy r1
+            //load lower right into r1
+            add r3 r4 //right index + right array start
+            copy r3
+            load r3 1
+            copy r1
 
-        //load lower left into r0
-        add r2 r7 //left index + left array start
-        copy r2
-        load r2 1
+            //load lower left into r0
+            add r2 r7 //left index + left array start
+            copy r2
+            load r2 1
 
-        pop
+            pop
+
         //compare LSBs in r0 and r1
         //if r0 < r1, left is smaller
         cmp r0 r1
