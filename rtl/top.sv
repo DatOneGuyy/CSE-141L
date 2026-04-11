@@ -7,4 +7,8 @@ module top(
 
 decoder decoder_inst();
 
+instruction_memory imem_inst(
+    .clk(clk),
+);
+
 endmodule
