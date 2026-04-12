@@ -15,7 +15,13 @@ print("[INFO] Found assembly file.")
 
 opcodes = {}
 opcodes["jump"] = "001"
+opcodes["jumpz"] = "001"
+opcodes["jumpnz"] = "001"
+opcodes["jumppos"] = "001"
 opcodes["jumplt"] = "001"
+opcodes["jumpgt"] = "001"
+opcodes["jumplts"] = "001"
+opcodes["jumpgts"] = "001"
 opcodes["call"] = "001"
 opcodes["return"] = "001"
 
@@ -76,8 +82,8 @@ for line in data:
         pc += 1
         delabeled_data.append(line)
 print(f"[INFO] Identified {label_count} labels.")
-label_memory = ["0" * 13] * 63
-label_memory[0] = "0" * 12 + "1"
+label_memory = ["0" * 18] * 64
+label_memory[0] = "0" * 11 + "1" + "0" * 6
 
 # detect incorrectly used labels
 marked_data = [(line + "`") for line in data]
@@ -97,6 +103,18 @@ for entry in mapping:
             elif token == "call":
                 #print(f"Identified label {entry} as a function")
                 break
+            elif token == "jumpgt":
+                break
+            elif token == "jumpz":
+                break
+            elif token == "jumpnz":
+                break
+            elif token == "jumppos":
+                break
+            elif token == "jumplts":
+                break
+            elif token == "jumpgts":
+                break
 
     for line in marked_data:
         if (entry + "`") in line:
@@ -113,11 +131,23 @@ for entry in mapping:
         label_memory[mapping[entry][0]] = "0" + label_memory[mapping[entry][0]]
     match token:
         case "jump":
-            label_memory[mapping[entry][0]] += "000"
-        case "jumplt":
-            label_memory[mapping[entry][0]] += "010"
+            label_memory[mapping[entry][0]] += "00000000"
         case "call":
-            label_memory[mapping[entry][0]] += "100"
+            label_memory[mapping[entry][0]] += "10000000"
+        case "jumpz":
+            label_memory[mapping[entry][0]] += "00100000"
+        case "jumpnz":
+            label_memory[mapping[entry][0]] += "00010000"
+        case "jumppos":
+            label_memory[mapping[entry][0]] += "00001000"
+        case "jumplt":
+            label_memory[mapping[entry][0]] += "00000100"
+        case "jumpgt":
+            label_memory[mapping[entry][0]] += "00000010"
+        case "jumplts":
+            label_memory[mapping[entry][0]] += "00000101"
+        case "jumpgts":
+            label_memory[mapping[entry][0]] += "00000011"
 #for entry in label_memory:
     #print(entry)
 print("[INFO] Filled label memory.")
@@ -129,13 +159,9 @@ for line in delabeled_data:
     tokens = line.split(" ")
     code = opcodes[tokens[0]]
     match tokens[0]:
-        case "jump":
+        case "jump" | "call" | "jumpz" | "jumpnz" | "jumppos" | "jumplt" | "jumpgt" | "jumplts" | "jumpgts":
             code += pad_zeroes(bin(mapping[tokens[1]][0])[2:], 6)
-        case "call":
-            code += pad_zeroes(bin(mapping[tokens[1]][0])[2:], 6)
-        case "jumplt":
-            code += pad_zeroes(bin(mapping[tokens[1]][0])[2:], 6)
-        case "cmp":
+        case "cmp" | "add":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
             code += pad_zeroes(bin(int(tokens[2][1]))[2:], 3)
         case "copy":
@@ -172,9 +198,6 @@ for line in delabeled_data:
                 code += pad_zeroes(bin(int(tokens[2]))[2:], 2)
             else:
                 code += "00"
-        case "add":
-            code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
-            code += pad_zeroes(bin(int(tokens[2][1]))[2:], 3)
         case "lshift":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
             code += "0"
