@@ -231,7 +231,7 @@ while pc < len(data):
             registers[0] -= (registers[int(tokens[1][1:])] & 0xFF)
             registers[0] = registers[0] & 0xFF
             print(f"Registers: {registers}")
-        case "clshift":
+        case "lshiftc":
             registers[0] = (registers[int(tokens[1][1:])] << 1) | carry
             carry = (registers[0] & 0x100) >> 8
             registers[0] = registers[0] % 256

@@ -165,95 +165,90 @@
     cmp r7 r4
     jumplt #main-loop-start
 
-    jump #end
+    jump #end-3
 
-// Multiplies two unsigned 16-bit numbers to produce a 32-bit product
-// Inputs: mem[0-1]: Multiplier (MSB, LSB)
-//         mem[2-3]: Multiplicand (MSB, LSB)
-// Output: mem[0-3]: 32-bit Product (MSB to LSB)
+// multiplies two unsigned 16-bit numbers to produce a 32-bit product
+// inputs: mem[0-1]: multiplier
+//         mem[2-3]: multiplicand
+// output: mem[0-3]: 32-bit product
 #multiply-32
-    flag
-    // 1. Initialize 32-bit Product to 0 in registers
-    dist r0       // r0 = 0
-    copy r2       // Product Byte 0 = 0
-    copy r3       // Product Byte 1 = 0
-    copy r4       // Product Byte 2 = 0
-    copy r5       // Product Byte 3 = 0
-    
-    // 2. Initialize Constants
+    //initialize product to zero
     dist r0
-    copy r6       // r6 = 0 (Memory pointer and for loop comparison)
-    imm r7 1      // r7 = 1 (Used for decrements and bit masking)
+    copy r2
+    copy r3
+    copy r4
+    copy r5
     
-    // 3. Initialize Loop Counter to 16
+    //initialize constants
+    dist r0
+    copy r6       // r6 = 0 (memory pointer and loop comparison)
+    imm r7 1      // r7 = 1 (decrement and bit masking)
+    
+    //initialize loop counter in r1 to 16
     imm r1 4
-    lshift r1 2   // r0 = 4 << 2 (16)
-    copy r1       // r1 = 16
+    lshift r1 2
+    copy r1
 
     #multiply-loop
         
-        // STEP 1: Shift the 32-bit Product Left by 1
-        lshift r5 1   // r0 = r5 << 1 (MSB falls into Carry Flag)
+        //shift product left by 1
+        lshift r5 1       // r0 = r5 << 1 and MSB sets carry flag
         copy r5
-        clshift r4        // r0 = (r4 << 1) | Carry Flag
+        lshiftc r4        // r0 = (r4 << 1) | carry
         copy r4
-        clshift r3        // r0 = (r3 << 1) | Carry Flag
+        lshiftc r3        // r0 = (r3 << 1) | carry
         copy r3
-        clshift r2        // r0 = (r2 << 1) | Carry Flag
+        lshiftc r2        // r0 = (r2 << 1) | carry
         copy r2
 
-        // STEP 2: Extract MSB of Multiplier from Memory
-        load r6       // r0 = mem[0] (Multiplier MSB)
+        //load multiplier from memory
+        load r6       // r0 = mem[0]
         rshift r0 4   // r0 = r0 >> 4
-        rshift r0 3   // r0 = r0 >> 3 (r0 is now exactly 0x00 or 0x01)
+        rshift r0 3   // r0 = r0 >> 3 (r0 is 0x00 or 0x01)
         
-        // STEP 3: Conditional Addition
-        cmp r0 r7     // Is MSB < 1? (i.e., is it 0?)
+        //add only if MSB is 1
+        cmp r0 r7
         jumplt #skip-add 
             
-            // Add LSBs
-            load r6 3     // r0 = mem[3] (Multiplicand LSB)
-            add r5 r0     // r0 = r5 + r0 (Sets Carry Flag)
+            //add LSBs
+            load r6 3     // r0 = mem[3] (multiplicand MSB)
+            add r5 r0     // r0 = r5 + r0 and set carry
             copy r5
 
-            // Add MSBs
-            load r6 2     // r0 = mem[2] (Multiplicand MSB)
-            addc r4       // r0 = r0 + r4 + Carry Flag
+            //add MSBs
+            load r6 2     //r0 = mem[2]
+            addc r4       //r0 = r0 + r4 + carry
             copy r4
 
-            // Propagate Carry to upper 16 bits of Product
-            dist r0       // r0 = 0
-            addc r3       // r0 = r0 + r3 + Carry Flag
+            // propagate carry
+            dist r0       //r0 = 0
+            addc r3       //r0 = r0 + r3 + carry
             copy r3
 
-            dist r0       // r0 = 0
-            addc r2       // r0 = r0 + r2 + Carry Flag
+            dist r0       //r0 = 0
+            addc r2       //r0 = r0 + r2 + carry
             copy r2
 
         #skip-add
         
-        // STEP 4: Shift Multiplier Left by 1 in Memory
-        load r6 1     // r0 = mem[1] (Multiplier LSB)
-        lshift r0 1   // r0 = r0 << 1 (MSB to Carry)
-        store r6 1    // mem[1] = r0
+        //shift multiplier left by 1
+        load r6 1
+        lshift r0 1
+        store r6 1
         
-        load r6       // r0 = mem[0] (Multiplier MSB)
-        clshift r0        // r0 = (r0 << 1) | Carry
-        store r6      // mem[0] = r0
+        //shift in lost bit
+        load r6
+        lshiftc r0
+        store r6
     
-    // STEP 5: Decrement Counter
-    copy r0 r1    // r0 = Loop Counter
-    sub r7        // r0 = r0 - 1
-    copy r1       // Loop Counter = r0
-    
-    // STEP 6: Loop Check
-    cmp r6 r1     // Is 0 < r1?
+    //loop decrement and comparison
+    copy r0 r1
+    sub r7
+    copy r1
+    cmp r6 r1
     jumplt #multiply-loop
 
-    // ----------------------------------------------------
-    // STEP 7: Copy 32-bit Product back to memory
-    // ----------------------------------------------------
-    
+    //copy product back into memory
     copy r0 r2    // Move Product Byte 0 to accumulator
     store r6      // mem[0] = Product MSB
     
@@ -268,4 +263,5 @@
 
     return
 
-#end
+#end-3
+halt

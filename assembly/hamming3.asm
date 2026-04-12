@@ -68,7 +68,7 @@
     copy r0 r7
     store r5 1
 
-    jump #end
+    jump #end-1
 
 //calculates hamming distance between two 16-bit numbers
 //argument positions set to minimize copying
@@ -94,4 +94,5 @@
 
     return
 
-#end
+#end-1
+halt
