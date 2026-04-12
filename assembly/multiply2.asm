@@ -16,28 +16,22 @@
     #main-loop-start
         push r4+ //save r5-r7 for use at end of loop body
         
-        //get multiplier sign
-        load r7        //Load MSB 1
+        load r7        //load MSB 1
+        copy r1
+
+        load r7 2      //load MSB 2
+        xor r1
         rshift r0 4
         rshift r0 3
-        copy r5        //r5 = multiplier sign (0 or 1)
-
-        //get multiplicand sign
-        load r7 2      //Load MSB 2
-        rshift r0 4
-        rshift r0 3
-
-        xor r5         
-        copy r5        //save result sign
+        copy r5        //save sign bit of result
 
         //negate multplier if needed
         load r7 1
         copy r2
-        load r7
-        copy r1
+        copy r0 r1
 
         //check sign
-        jumppos #store-multiplier
+        jumppos #store-multiplier //skip negation if positive
 
         //negate
         not r1
@@ -68,7 +62,7 @@
         copy r1
 
         //check sign
-        jumppos #store-multiplicand
+        jumppos #store-multiplicand //if sign bit < 1, is positive
 
         //negate
         not r1
@@ -97,9 +91,8 @@
         call #multiply-32
         pop
 
-        imm r0 1
-        cmp r5 r0
-        jumplt #positive-result //skip negation step if result is positive
+        copy r0 r5
+        jumpz #positive-result //skip negation step if result is positive
             //negate smallest byte
             load r6 3
             not r0
@@ -184,27 +177,23 @@
     #multiply-loop
         
         //shift product left by 1
-        lshift r5 1       // r0 = r5 << 1 and MSB sets carry flag
+        lshift r5 1       //r0 = r5 << 1 and MSB sets carry flag
         copy r5
-        lshiftc r4        // r0 = (r4 << 1) | carry
+        lshiftc r4        //r0 = (r4 << 1) | carry
         copy r4
-        lshiftc r3        // r0 = (r3 << 1) | carry
+        lshiftc r3        //r0 = (r3 << 1) | carry
         copy r3
-        lshiftc r2        // r0 = (r2 << 1) | carry
+        lshiftc r2        //r0 = (r2 << 1) | carry
         copy r2
 
         //load multiplier from memory
-        load r6       // r0 = mem[0]
-        rshift r0 4   // r0 = r0 >> 4
-        rshift r0 3   // r0 = r0 >> 3 (r0 is 0x00 or 0x01)
-        
-        //add only if MSB is 1
-        cmp r0 r7
-        jumplt #skip-add 
+        load r6
+
+        jumppos #skip-add //skip addition if MSB is 0
             
             //add LSBs
-            load r6 3     // r0 = mem[3] (multiplicand MSB)
-            add r5 r0     // r0 = r5 + r0 and set carry
+            load r6 3     //r0 = mem[3] (multiplicand MSB)
+            add r5 r0     //r0 = r5 + r0 and set carry
             copy r5
 
             //add MSBs
@@ -237,21 +226,20 @@
     copy r0 r1
     sub r7
     copy r1
-    cmp r6 r1
-    jumplt #multiply-loop
+    jumpnz #multiply-loop
 
     //copy product back into memory
-    copy r0 r2    // Move Product Byte 0 to accumulator
-    store r6      // mem[0] = Product MSB
+    copy r0 r2    //move product byte 0 to r0
+    store r6      //mem[0] = product MSB
     
     copy r0 r3
-    store r6 1    // mem[1] = Product Byte 1
+    store r6 1    //mem[1] = product byte 1
     
     copy r0 r4
-    store r6 2    // mem[2] = Product Byte 2
+    store r6 2    //mem[2] = product byte 2
     
     copy r0 r5
-    store r6 3    // mem[3] = Product LSB
+    store r6 3    //mem[3] = product LSB
 
     return
 

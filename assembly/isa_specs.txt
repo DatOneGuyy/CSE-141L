@@ -81,3 +81,7 @@ new options
 100 - addc
 101 - subc
 110 - clshift
+
+label format:
+even-indexed entries: {pc[8:0]}
+odd-indexed entries:  {pc[9], call, return, z, nz, pos, lt, gt, signed}

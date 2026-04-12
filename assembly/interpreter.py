@@ -23,7 +23,6 @@ for line in file:
 registers = [0] * 8
 stack = []
 pc = 0
-less = False
 
 data_memory = []
 for i in range(64):
@@ -164,11 +163,24 @@ def smallest_diff(input):
             min = input[i + 1] - input[i]
     return min
 
+def get2c(val):
+    if (val & 0x80) != 0:
+        val = val - 256
+    return val
+
 pc = 0
 data = delabeled_data
 counter = 0
 flag_count = 0
+
+less = False
+greater = False
+signed_less = False
+signed_greater = False
 carry = 0
+zero = False
+negative = False
+
 input_memory = [i for i in data_memory[:64]]
 while pc < len(data):
     counter += 1
@@ -187,23 +199,43 @@ while pc < len(data):
                 break
         case "not":
             registers[0] = ~registers[int(tokens[1][1:])] & 0xFF
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "imm":
             registers[int(tokens[1][1:])] = int(tokens[2]) & 0xFF
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "lshift":
             registers[0] = registers[int(tokens[1][1:])] << int(tokens[2])
             carry = (registers[0] & 0x100) >> 8
             registers[0] = registers[0] & 0xFF
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "rshift":
             registers[0] = (registers[int(tokens[1][1:])] & 0xFF) >> int(tokens[2])
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "copy":
             if (len(tokens) == 2):
                 registers[int(tokens[1][1:])] = registers[0]
             else:
                 registers[int(tokens[1][1:])] = registers[int(tokens[2][1:])]
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "store":
             if len(tokens) == 2:
@@ -218,6 +250,10 @@ while pc < len(data):
             else:
                 carry = 0
             registers[0] = result & 0xFF
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "addc":
             result = (registers[int(tokens[1][1:])] & 0xFF) + (registers[0] & 0xFF) + carry
@@ -226,15 +262,27 @@ while pc < len(data):
             else:
                 carry = 0
             registers[0] = result & 0xFF
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "sub":
             registers[0] -= (registers[int(tokens[1][1:])] & 0xFF)
             registers[0] = registers[0] & 0xFF
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "lshiftc":
             registers[0] = (registers[int(tokens[1][1:])] << 1) | carry
             carry = (registers[0] & 0x100) >> 8
             registers[0] = registers[0] % 256
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "push":
             frame = registers[1:]
@@ -249,6 +297,9 @@ while pc < len(data):
             for i in range(1, 8):
                 if i >= items[7]:
                     registers[i] = items[i - 1]
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
 
             print(f"Registers: {registers}")
             print(f"Stack: {stack}")
@@ -265,35 +316,74 @@ while pc < len(data):
                 registers[0] = data_memory[registers[int(tokens[1][1:])]]
             else:
                 registers[0] = data_memory[registers[int(tokens[1][1:])] + int(tokens[2])]
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "dist":
             registers[0] = dist(registers[int(tokens[1][1:])], registers[0])
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "cmp":
             less = (registers[int(tokens[1][1:])] & 0xFF) < (registers[int(tokens[2][1:])] & 0xFF)
+            greater = (registers[int(tokens[1][1:])] & 0xFF) > (registers[int(tokens[2][1:])] & 0xFF)
+
+            signed_less = get2c(registers[int(tokens[1][1:])] & 0xFF) < get2c(registers[int(tokens[2][1:])] & 0xFF)
+            signed_greater = get2c(registers[int(tokens[1][1:])] & 0xFF) > get2c(registers[int(tokens[2][1:])] & 0xFF)
+
             print(f"Flag => less: {less}")
         case "xor":
             registers[0] = registers[int(tokens[1][1:])] ^ registers[0]
+
+            zero = (registers[0] == 0)
+            negative = get2c(registers[0] & 0xFF) < 0
+
             print(f"Registers: {registers}")
         case "jumplt":
             if less:
-                if tokens[1][0] != "#":
-                    pc += int(tokens[1])
-                    continue
-                else:
-                    pc = mapping[tokens[1]]
-                    continue
-        case "jump":
-            if tokens[1][0] != "#":
-                pc += int(tokens[1])
+                pc = mapping[tokens[1]]
                 continue
-            else:
+        case "jump":
+            pc = mapping[tokens[1]]
+            continue
+        case "jumpz":
+            if zero:
+                pc = mapping[tokens[1]]
+                continue
+        case "jumpnz":
+            if not zero:
+                pc = mapping[tokens[1]]
+                continue
+        case "jumppos":
+            if not negative:
+                pc = mapping[tokens[1]]
+                continue
+        case "jumpgt":
+            if greater:
+                pc = mapping[tokens[1]]
+                continue
+        case "jumplts":
+            if signed_less:
+                pc = mapping[tokens[1]]
+                continue
+        case "jumpgts":
+            if signed_greater:
                 pc = mapping[tokens[1]]
                 continue
         case "return":
             pc = stack[-1][-1]
             print(f"Returned to {pc}")
             continue
+        case "halt":
+            print("Halting program")
+            break
+        case _:
+            print(f"Invalid instruction, exiting.")
+            exit()
         
     pc += 1
 end = time.perf_counter()
