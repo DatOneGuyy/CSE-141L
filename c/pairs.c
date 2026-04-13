@@ -32,30 +32,6 @@ int gts(uint8_t a, uint8_t b) {
     return a > b;
 }
 
-void merge_sort(uint8_t start, uint8_t size, uint8_t* return_index, uint8_t* return_size) {
-    if (size < 4) {
-        *return_index = start;
-        *return_size = size;
-        return;
-    }
-
-    uint8_t half_length = size / 2;
-    uint8_t left_start = start;
-    uint8_t right_start = start + new_length
-
-    uint8_t left_index, left_size;
-    merge_sort(left_start, half_length, &left_index, &left_size);
-
-    uint8_t right_start, right_size;
-    merge_sort(right_start, half_length, &right_index, &right_size);
-
-    uint8_t merged_index, merged_size;
-    merge(left_start, half_length, &merged_index, &merged_size);
-
-    *return_index = merged_index;
-    *return_size = merged_size;
-}
-
 void merge(uint8_t start, uint8_t size, uint8_t* return_index, uint8_t* return_size) {
     int left_index = 0;
     int right_index = 0;
@@ -75,7 +51,7 @@ void merge(uint8_t start, uint8_t size, uint8_t* return_index, uint8_t* return_s
 
             zero_address[write_position] = left_msb;
             zero_address[write_position + 1] = left_lsb;
-        } else if (gts(lsb_msb, right_msb)) {
+        } else if (gts(left_msb, right_msb)) {
             uint8_t right_lsb = zero_address[right_start + right_index + 1];
             right_index += 2;
 
@@ -139,6 +115,30 @@ void merge(uint8_t start, uint8_t size, uint8_t* return_index, uint8_t* return_s
     return;
 }
 
+void merge_sort(uint8_t start, uint8_t size, uint8_t* return_index, uint8_t* return_size) {
+    if (size < 4) {
+        *return_index = start;
+        *return_size = size;
+        return;
+    }
+
+    uint8_t half_length = size / 2;
+    uint8_t left_start = start;
+    uint8_t right_start = start + half_length;
+
+    uint8_t left_index, left_size;
+    merge_sort(left_start, half_length, &left_index, &left_size);
+
+    uint8_t right_index, right_size;
+    merge_sort(right_start, half_length, &right_index, &right_size);
+
+    uint8_t merged_index, merged_size;
+    merge(left_start, half_length, &merged_index, &merged_size);
+
+    *return_index = merged_index;
+    *return_size = merged_size;
+}
+
 void subtract(uint8_t msb1, uint8_t lsb1, uint8_t msb2, uint8_t lsb2, uint8_t* result_msb, uint8_t* result_lsb) {
     uint16_t num1 = (uint16_t)msb1;
     num1 = (num1 << 8) | (uint16_t)lsb1;
@@ -151,10 +151,27 @@ void subtract(uint8_t msb1, uint8_t lsb1, uint8_t msb2, uint8_t lsb2, uint8_t* r
     *result_lsb = (uint8_t)(difference & 0xFF);
 }
 
+void print_results() {
+    printf("Memory: ");
+    for (int i = 0; i < 64; ++i) {
+        printf("%d ", zero_address[i]);
+    }
+    
+    uint16_t min_diff = (uint16_t)(zero_address[66]);
+    min_diff = (min_diff << 8) | (uint16_t)(zero_address[67]);
+    uint16_t max_diff = (uint16_t)(zero_address[68]);
+    max_diff = (max_diff << 8) | (uint16_t)(zero_address[69]);
+
+    printf("\nSmallest difference: %u\n", min_diff);
+    printf("Largest difference: %u\n", max_diff);
+}
+
 int main() {
     initialize();
+    print_results();
 
-    merge_sort(zero_address, 64);
+    uint8_t temp;
+    merge_sort(0, 64, &temp, &temp);
     uint8_t max_msb;
     uint8_t max_lsb;
 
@@ -187,6 +204,8 @@ int main() {
 
     zero_address[68] = min_diff_msb;
     zero_address[69] = min_diff_lsb;
+
+    print_results();
 
     return 0;
 }
