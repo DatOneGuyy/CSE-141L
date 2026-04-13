@@ -14,7 +14,7 @@ void initialize() {
     }
 }
 
-//hardware operation
+//software implementation of hardware operation
 int dist(uint8_t a, uint8_t b) {
     int count = 0;
     for (int i = 0; i < 8; ++i) {

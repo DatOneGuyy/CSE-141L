@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 uint8_t* zero_address;
 void initialize() {
@@ -12,6 +13,23 @@ void initialize() {
         int r = rand() & 0xFF;
         zero_address[i] = (uint8_t)r;
     }
+}
+
+//software implementation of hardware signed comparison
+int lts(uint8_t a, uint8_t b) {
+    int8_t signed_a, signed_b;
+    memcpy(&signed_a, &a, sizeof(a));
+    memcpy(&signed_b, &b, sizeof(b));
+
+    return a < b;
+}
+
+int gts(uint8_t a, uint8_t b) {
+    int8_t signed_a, signed_b;
+    memcpy(&signed_a, &a, sizeof(a));
+    memcpy(&signed_b, &b, sizeof(b));
+
+    return a > b;
 }
 
 void merge_sort(uint8_t start, uint8_t size, uint8_t* return_index, uint8_t* return_size) {
@@ -39,11 +57,136 @@ void merge_sort(uint8_t start, uint8_t size, uint8_t* return_index, uint8_t* ret
 }
 
 void merge(uint8_t start, uint8_t size, uint8_t* return_index, uint8_t* return_size) {
-    
+    int left_index = 0;
+    int right_index = 0;
+
+    int left_start = start;
+    int right_start = start + size;
+
+    int write_position = start + 64;
+
+    while (left_index < size && right_index < size) {
+        uint8_t right_msb = zero_address[right_start + right_index];
+        uint8_t left_msb = zero_address[left_start + left_index];
+
+        if (lts(left_msb, right_msb)) {
+            uint8_t left_lsb = zero_address[left_start + left_index + 1];
+            left_index += 2;
+
+            zero_address[write_position] = left_msb;
+            zero_address[write_position + 1] = left_lsb;
+        } else if (gts(lsb_msb, right_msb)) {
+            uint8_t right_lsb = zero_address[right_start + right_index + 1];
+            right_index += 2;
+
+            zero_address[write_position] = right_msb;
+            zero_address[write_position + 1] = right_lsb;
+        } else {
+            uint8_t right_lsb = zero_address[right_start + right_index + 1];
+            uint8_t left_lsb = zero_address[left_start + left_index + 1];
+
+            if (left_lsb < right_lsb) {
+                left_index += 2;
+
+                zero_address[write_position] = left_msb;
+                zero_address[write_position + 1] = left_lsb;
+            } else {
+                right_index += 2;
+
+                zero_address[write_position] = right_msb;
+                zero_address[write_position + 1] = right_lsb;
+            }
+        }
+
+        write_position += 2;
+    }
+
+    while (left_index < size) {
+        uint8_t left_msb = zero_address[left_start + left_index];
+        uint8_t left_lsb = zero_address[left_start + left_index + 1];
+
+        zero_address[write_position] = left_msb;
+        zero_address[write_position] = left_lsb;
+
+        left_index += 2;
+        write_position += 2;
+    }
+
+    while (right_index < size) {
+        uint8_t right_msb = zero_address[right_start + right_index];
+        uint8_t right_lsb = zero_address[right_start + right_index + 1];
+
+        zero_address[write_position] = right_msb;
+        zero_address[write_position] = right_lsb;
+
+        right_index += 2;
+        write_position += 2;
+    }
+
+    *return_index = start;
+    *return_size = size << 1;
+
+    int copy_index = left_start;
+    int copy_bound = copy_index + *return_size;
+
+    while (copy_index < copy_bound) {
+        zero_address[copy_index] = zero_address[copy_index + 64];
+        zero_address[copy_index + 1] = zero_address[copy_index + 65];
+
+        ++copy_index;
+    }
+
+    return;
+}
+
+void subtract(uint8_t msb1, uint8_t lsb1, uint8_t msb2, uint8_t lsb2, uint8_t* result_msb, uint8_t* result_lsb) {
+    uint16_t num1 = (uint16_t)msb1;
+    num1 = (num1 << 8) | (uint16_t)lsb1;
+
+    uint16_t num2 = (uint16_t)msb2;
+    num2 = (num2 << 8) | (uint16_t)lsb2;
+
+    uint16_t difference = num1 - num2;
+    *result_msb = (uint8_t)((difference & 0xFF00) >> 8);
+    *result_lsb = (uint8_t)(difference & 0xFF);
 }
 
 int main() {
     initialize();
+
+    merge_sort(zero_address, 64);
+    uint8_t max_msb;
+    uint8_t max_lsb;
+
+    subtract(zero_address[0], zero_address[1], zero_address[62], zero_address[63], &max_msb, &max_lsb);
+    zero_address[66] = max_msb;
+    zero_address[67] = max_lsb;
+
+    uint8_t min_diff_msb = 0xFF;
+    uint8_t min_diff_lsb = 0xFF;
+    for (uint8_t index = 0; index < 62; index += 2) {
+        uint8_t first_msb = zero_address[index];
+        uint8_t first_lsb = zero_address[index + 1];
+        uint8_t second_msb = zero_address[index + 2];
+        uint8_t second_lsb = zero_address[index + 3];
+
+        uint8_t current_diff_msb;
+        uint8_t current_diff_lsb;
+        subtract(first_msb, first_lsb, second_msb, second_lsb, & current_diff_msb, &current_diff_lsb);
+
+        if (current_diff_msb < min_diff_msb) {
+            min_diff_msb = current_diff_msb;
+            min_diff_lsb = current_diff_lsb;
+        } else if (current_diff_msb == min_diff_msb) {
+            if (current_diff_lsb < min_diff_lsb) {
+                min_diff_msb = current_diff_msb;
+                min_diff_lsb = current_diff_lsb;
+            }
+        }
+    }
+
+    zero_address[68] = min_diff_msb;
+    zero_address[69] = min_diff_lsb;
 
     return 0;
 }
