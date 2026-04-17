@@ -85,3 +85,18 @@ new options
 label format:
 even-indexed entries: {pc[8:0]}
 odd-indexed entries:  {pc[9], call, return, z, nz, pos, lt, gt, signed}
+
+stack control signals
+0 - push
+1 - pop
+
+push - 000 - write 6/7
+     - 001 - write 4/5
+     - 010 - write 2/3
+     - 011 - write pc
+pop  - 000 - store 7
+     - 001 - store 6
+     - 010 - store 5
+     - 011 - store 4
+     - 100 - store 3
+     - 101 - store 2

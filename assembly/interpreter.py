@@ -22,6 +22,7 @@ for line in file:
 
 registers = [0] * 8
 stack = []
+max_depth = 0
 pc = 0
 
 data_memory = []
@@ -289,6 +290,8 @@ while pc < len(data):
             frame.append(int(tokens[1][1]))
 
             stack.append(frame)
+            if len(stack) > max_depth:
+                max_depth = len(stack)
             print(f"Stack: {stack}")
         case "pop":
             items = stack.pop()
@@ -390,6 +393,7 @@ end = time.perf_counter()
 print(f"Simulation time: {end - start:.6f} seconds")
 print(f"Instructions executed: {counter}")
 print(f"Flag count: {flag_count}")
+print(f"Max stack depth: {max_depth}")
 print(f"Original bytes: {input_memory}")
 print(f"Original input: {parse_memory_to_signed_16bit(input_memory)}")
 print(f"Lower memory: {parse_memory_to_signed_16bit(data_memory[:64])}")

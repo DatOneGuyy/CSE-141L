@@ -37,7 +37,7 @@
         #inner-loop-start
             //inner loop body
 
-            push r1+
+            push r4+
             call #calculate-distance
             pop
 

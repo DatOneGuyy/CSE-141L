@@ -87,7 +87,7 @@
         store r6 2
 
         //call multiplication
-        push r1+
+        push r5+
         call #multiply-32
         pop
 
