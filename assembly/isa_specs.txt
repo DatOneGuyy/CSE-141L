@@ -86,17 +86,29 @@ label format:
 even-indexed entries: {pc[8:0]}
 odd-indexed entries:  {pc[9], call, return, z, nz, pos, lt, gt, signed}
 
-stack control signals
-0 - push
-1 - pop
+stack sequence
+0000 - push 6/7
+0001 - save 4/5
+0010 - save 5
+0011 - save 2/3
 
-push - 000 - write 6/7
-     - 001 - write 4/5
-     - 010 - write 2/3
-     - 011 - write pc
-pop  - 000 - store 7
-     - 001 - store 6
-     - 010 - store 5
-     - 011 - store 4
-     - 100 - store 3
-     - 101 - store 2
+0100 - restore 7
+0101 - restore 6
+0110 - restore 5
+0111 - restore 4
+1000 - restore 3
+
+1100 - restore 6 + pop
+1101 - restore 5 + pop
+1110 - restore 4 + pop
+1111 - restore 2 + pop
+
+push r2+
+0000 => 0001 => 0010 => 0011
+pop
+0100 => 0101 => 0110 => 0111 => 1000 => 1111
+
+ctrl[3] | ctrl[2]  => restore
+ctrl[3] & ctrl[2]  => pop
+~|ctrl             => push
+ctrl[3] ~| ctrl[2] => save

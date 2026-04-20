@@ -7,6 +7,8 @@ typedef struct packed {
     logic [7:0] r5;
     logic [7:0] r6;
     logic [7:0] r7;
+
+    logic [1:0] mask;
     
     logic [9:0] pc;
 } stack_frame;

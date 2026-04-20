@@ -37,7 +37,7 @@
         #inner-loop-start
             //inner loop body
 
-            push r1+
+            push r4+
             call #calculate-distance
             pop
 
@@ -107,7 +107,7 @@ halt
     copy r1
     dist r0
 
-    push r4+
+    push r6+
     call #merge-sort
     pop
     
@@ -174,7 +174,7 @@ halt
     imm r7 -1
 
     #difference-loop-start
-        push r2+
+        push r4+
 
         //calculate subtraction first
         //load adjacent array elements
@@ -278,21 +278,21 @@ halt
         //setup left recursive call
         copy r0 r7 //copy index
         copy r1 r6 //copy size
-        push r2+   //keep return values in r0/r1
+        push r6+   //keep return values in r0/r1
         call #merge-sort
         pop
 
         //setup right recursive call
         add r6 r7  // calculate right start index
         copy r1 r6 // restore the split size to r1
-        push r2+   
+        push r6+   
         call #merge-sort
         pop
 
         //setup merge function call
         copy r0 r7 // restore left start index
         copy r1 r6 // restore the split size to r1
-        push r2+
+        push r4+
         call #merge
         pop
 
@@ -344,7 +344,7 @@ halt
 
         //compare MSBs
         //start with sign comparison
-        push r2+
+        push r6+
 
         //save right, then left
         copy r7 r1 
@@ -403,7 +403,7 @@ halt
     jumplt #left-unfinished-loop
 
     #right-unfinished-loop
-        push r2+
+        push r6+
         
         //load bytes
         add r3 r4 //right index + right array start
@@ -435,7 +435,7 @@ halt
     jump #copy-back 
 
     #left-unfinished-loop
-        push r2+
+        push r6+
         
         //load bytes
         add r2 r7 //left index + left array start
@@ -522,16 +522,12 @@ halt
     copy r1 r5
     pop
 
-    push r2+
-
     //load lower byte
     add r2 r7 //left index + left array start
     load r0 1
 
     //write lower byte
     store r1 1
-
-    pop
 
     //increment left index
     imm r0 2
@@ -554,16 +550,12 @@ halt
     copy r1 r5
     pop
 
-    push r2+
-
     //load lower byte
     add r3 r4 //right index + right array start
     load r0 1
 
     //write lower byte
     store r1 1
-
-    pop
 
     //increment right index
     imm r0 2
@@ -586,16 +578,12 @@ halt
     copy r1 r5
     pop
 
-    push r2+
-
     //load upper byte
     add r2 r7 //left index + left array start
     load r0
 
     //write upper byte
     store r1
-
-    pop
 
     //increment left index
     imm r0 2
@@ -617,16 +605,12 @@ halt
     copy r1 r5
     pop
 
-    push r2+
-
     //load upper byte
     add r3 r4 //right index + right array start
     load r0
 
     //write upper byte
     store r1
-
-    pop
 
     //increment right index
     imm r0 2
@@ -726,7 +710,7 @@ halt
         store r6 2
 
         //call multiplication
-        push r1+
+        push r5+
         call #multiply-32
         pop
 
