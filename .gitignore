@@ -1,4 +1,4 @@
 dnamkung-asm/
-c_mult
-pairs
-hamming
+test/c_mult
+assembly/pairs
+assembly/hamming

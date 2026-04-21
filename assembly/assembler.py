@@ -129,6 +129,7 @@ for entry in mapping:
     label_memory[mapping[entry][0]] = bin(mapping[entry][1])[2:]
     while len(label_memory[mapping[entry][0]]) < 10:
         label_memory[mapping[entry][0]] = "0" + label_memory[mapping[entry][0]]
+    
     match token:
         case "jump":
             label_memory[mapping[entry][0]] += "00000000"
@@ -172,7 +173,14 @@ for line in delabeled_data:
                 code += "000"
         case "push":
             code += "0"
-            code += pad_zeroes(bin(int(tokens[1][1]) - 1)[2:], 2)
+            if tokens[1][1] == "2":
+                code += "00"
+            elif tokens[1][1] == "4":
+                code += "01"
+            elif tokens[1][1] == "5":
+                code += "10"
+            elif tokens[1][1] == "6":
+                code += "11"
             code += "000"
         case "pop":
             code += "100000"
@@ -260,11 +268,11 @@ file.write("DATA_RADIX = BIN;\n")
 file.write("CONTENT\n")
 file.write("BEGIN\n")
 
-file.write("\n% Beginning of instruction memory\n\n")
+file.write("\n% Beginning of instruction memory %\n\n")
 for i in range(len(instructions)):
     file.write(f"{i:4d}        : {instructions[i]};\n")
 file.write(f"[{len(instructions)}..895]  : 000000000;\n")
-file.write("\n% Beginning of label memory\n\n")
+file.write("\n% Beginning of label memory %\n\n")
 
 start_point = 896
 for i in range(len(label_memory)):
@@ -272,7 +280,7 @@ for i in range(len(label_memory)):
         file.write(f"[{(i * 2 + start_point)}..1023] : 000000000;\n")
         break
     file.write(f"{(i * 2 + start_point):4d}        : {label_memory[i][:9]};\n")
-    file.write(f"{(i * 2 + start_point + 1):4d}        : {(label_memory[i][9:])}00000;\n")
+    file.write(f"{(i * 2 + start_point + 1):4d}        : {(label_memory[i][9:])};\n")
 
 
 file.write("\nEND;")
