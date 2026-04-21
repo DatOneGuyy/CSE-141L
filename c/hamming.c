@@ -55,7 +55,6 @@ int main() {
             if (current > max_dist) {
                 max_dist = current;
             }
-            count++;
         }
     }
 

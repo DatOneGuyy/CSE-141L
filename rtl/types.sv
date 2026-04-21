@@ -22,4 +22,13 @@ typedef struct packed {
     inst_field field2;
 } instruction;
 
+typedef struct packed {
+    logic zero;
+    logic nzero;
+    logic pos;
+    logic carry;
+    logic lt, gt;
+    logic lts, gts;
+} flags;
+
 endpackage
