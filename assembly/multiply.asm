@@ -192,7 +192,7 @@
         jumppos #skip-add //skip addition if MSB is 0
             
             //add LSBs
-            load r6 3     //r0 = mem[3] (multiplicand MSB)
+            load r6 3     //r0 = mem[3] (multiplicand LSB)
             add r5 r0     //r0 = r5 + r0 and set carry
             copy r5
 
