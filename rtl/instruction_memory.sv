@@ -1,4 +1,4 @@
-module instruction_memory(
+module instruction_memory (
     input logic clk,
     input logic [9:0] pc,
     input logic [5:0] label_address,

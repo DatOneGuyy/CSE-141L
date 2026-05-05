@@ -1,4 +1,4 @@
-module decoder(
+module decoder (
     input logic [8:0] instruction,
 
     output logic [2:0] reg_read1,
