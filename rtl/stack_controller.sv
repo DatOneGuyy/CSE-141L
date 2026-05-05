@@ -4,7 +4,11 @@ module stack_controller (
     input logic start,
     input logic [2:0] field,
 
-    output logic [3:0] stack_opcode;
+    output logic [3:0] stack_opcode,
+
+    output logic [2:0] write_dest,
+    output logic [2:0] read1_src,
+    output logic [2:0] read2_src
 );
 
 typedef enum {
@@ -104,6 +108,47 @@ always_comb begin
         pop_2: stack_opcode = 4'b1111;
 
         default: stack_opcode = 4'b1001;
+    endcase
+end
+
+always_comb begin
+    //avoid latches
+    read1_src = 3'b000;
+    read2_src = 3'b000;
+    write_dest = 3'b000;
+
+    unique case (state)
+        push_67: begin
+            read1_src = 3'b110;
+            read2_src = 3'b111;
+        end
+        push_45: begin
+            read1_src = 3'b100;
+            read2_src = 3'b101;
+        end
+        push_5: begin
+            read1_src = 3'b101;
+            read2_src = 3'b101;
+        end
+        push_23: begin
+            read1_src = 3'b010;
+            read2_src = 3'b011;
+        end
+
+        restore_7: write_dest = 3'b111;
+        restore_6: write_dest = 3'b110;
+        restore_5: write_dest = 3'b101;
+        restore_4: write_dest = 3'b100;
+        restore_3: write_dest = 3'b011;
+
+        pop_6: write_dest = 3'b110;
+        pop_5: write_dest = 3'b101;
+        pop_4: write_dest = 3'b100;
+        pop_2: write_dest = 3'b010;
+
+        default: begin
+            //
+        end
     endcase
 end
 

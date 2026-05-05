@@ -93,6 +93,10 @@ always_ff @(posedge clk) begin
             pointer <= pointer - 'b1;
             if (pointer == 0) empty <= 1'b1;
         end
+
+        default: begin
+            //
+        end
     endcase
 end
 
