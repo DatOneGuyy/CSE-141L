@@ -132,7 +132,7 @@ for entry in mapping:
     
     match token:
         case "jump":
-            label_memory[mapping[entry][0]] += "00000000"
+            label_memory[mapping[entry][0]] += "10000000"
         case "call":
             label_memory[mapping[entry][0]] += "10000000"
         case "jumpz":
