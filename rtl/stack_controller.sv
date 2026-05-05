@@ -7,6 +7,7 @@ module stack_controller (
     output logic [3:0] stack_opcode,
 
     output logic [2:0] write_dest,
+    output logic write_en,
     output logic [2:0] read1_src,
     output logic [2:0] read2_src
 );
@@ -88,7 +89,7 @@ always_ff @(posedge clk) begin
     endcase
 end
 
-//moore machine output
+//set stack opcodes
 always_comb begin
     unique case (state)
         push_67: stack_opcode = 4'b0000;
@@ -111,11 +112,13 @@ always_comb begin
     endcase
 end
 
+//set register file control signals
 always_comb begin
     //avoid latches
     read1_src = 3'b000;
     read2_src = 3'b000;
     write_dest = 3'b000;
+    write_en = 1'b0;
 
     unique case (state)
         push_67: begin
@@ -135,16 +138,43 @@ always_comb begin
             read2_src = 3'b011;
         end
 
-        restore_7: write_dest = 3'b111;
-        restore_6: write_dest = 3'b110;
-        restore_5: write_dest = 3'b101;
-        restore_4: write_dest = 3'b100;
-        restore_3: write_dest = 3'b011;
+        restore_7: begin
+            write_dest = 3'b111;
+            write_en = 1'b1;
+        end
+        restore_6: begin
+            write_dest = 3'b110;
+            write_en = 1'b1;
+        end
+        restore_5: begin
+            write_dest = 3'b101;
+            write_en = 1'b1;
+        end
+        restore_4: begin
+            write_dest = 3'b100;
+            write_en = 1'b1;
+        end
+        restore_3: begin
+            write_dest = 3'b011;
+            write_en = 1'b1;
+        end
 
-        pop_6: write_dest = 3'b110;
-        pop_5: write_dest = 3'b101;
-        pop_4: write_dest = 3'b100;
-        pop_2: write_dest = 3'b010;
+        pop_6: begin
+            write_dest = 3'b110;
+            write_en = 1'b1;
+        end
+        pop_5: begin
+            write_dest = 3'b101;
+            write_en = 1'b1;
+        end
+        pop_4: begin
+            write_dest = 3'b100;
+            write_en = 1'b1;
+        end
+        pop_2: begin
+            write_dest = 3'b010;
+            write_en = 1'b1;
+        end
 
         default: begin
             //

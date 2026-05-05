@@ -15,19 +15,13 @@ assign pc_p1 = current_pc + 10'b1;
 logic extended_flags [7:0];
 assign extended_flags = {1'b1, flags};
 
-logic unconditional, ret, z, nz, pos, ltu, gtu, lts, gts;
-
-assign unconditional = jump_target[16];
-assign ret = jump_target[15];
-assign z = jump_target[14];
-assign nz = jump_target[13];
-assign pos = jump_target[12];
+logic ltu, gtu, lts, gts;
 assign ltu = jump_target[11] & ~jump_target[9];
 assign gtu = jump_target[10] & ~jump_target[9];
 assign lts = jump_target[11] & jump_target[9];
 assign gts = jump_target[10] & jump_target[9];
 
-logic one_hot_code [8:0] = {ret, unconditional, z, nz, pos, ltu, gtu, lts, gts};
+logic one_hot_code [8:0] = {jump_target[16:12], ltu, gtu, lts, gts};
 assign no_jump = ~|one_hot_code;
 
 logic jump_address [9:0];
