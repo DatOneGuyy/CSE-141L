@@ -1,0 +1,92 @@
+{
+  "extensionVersion": "1.5.2",
+  "fileName": "c:\\Users\\compu\\CSE-141L\\dump\\data_memory_dump.vcd",
+  "markerTime": null,
+  "altMarkerTime": null,
+  "displayTimeUnit": "ps",
+  "selectedSignal": null,
+  "zoomRatio": 12.309090909090909,
+  "scrollLeft": 0,
+  "displayedSignals": [
+    {
+      "dataType": "signal-separator",
+      "label": "Inputs",
+      "rowHeight": 1
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 0,
+      "name": "data_memory_tb.clk",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "clk",
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 1,
+      "name": "data_memory_tb.address",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "address",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 3,
+      "name": "data_memory_tb.write_en",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "write_en",
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 2,
+      "name": "data_memory_tb.data_in",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 1,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "data_in",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "signal-separator",
+      "label": "-----------------",
+      "rowHeight": 1
+    },
+    {
+      "dataType": "signal-separator",
+      "label": "Outputs",
+      "rowHeight": 1
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 7,
+      "name": "data_memory_tb.dut.data_out",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 1,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "data_out",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    }
+  ]
+}

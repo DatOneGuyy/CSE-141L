@@ -40,7 +40,7 @@ void multiply() {
     uint8_t counter = 16;
 
     for (; counter != 0; --counter) {
-        product <<= 1;
+        product = product << 1;
 
         uint8_t multiplier_msb = zero_address[0];
 
