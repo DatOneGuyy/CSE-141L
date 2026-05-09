@@ -6,9 +6,15 @@ start = time.perf_counter()
 parser = argparse.ArgumentParser(description="Assembler")
 parser.add_argument("name", help="File to read")
 parser.add_argument("-o", "--output", help="Output file to write binary to", default="out")
+parser.add_argument("-b", "--bin", action="store_true", help="Format output as a binary")
 
 args = parser.parse_args()
 print("[INFO] Parsed assembly command line arguments.")
+
+if args.bin:
+    print("[INFO] Assembling into binary")
+else:
+    print("[INFO] Assembling into memory initialization file")
 
 file = open(args.name, "r")
 print("[INFO] Found assembly file.")
@@ -259,33 +265,46 @@ print("[INFO] Filled instruction memory.")
 
 file.close()
 
-file = open(args.output + ".mif", "w")
+if args.bin:
+    file = open(args.output + ".bin", "w")
 
-file.write("DEPTH = 1024;\n")
-file.write("WIDTH = 9;\n")
-file.write("ADDRESS_RADIX = DEC;\n")
-file.write("DATA_RADIX = BIN;\n")
-file.write("CONTENT\n")
-file.write("BEGIN\n")
+    for i in range(len(instructions)):
+        file.write(f"{instructions[i]}\n")
+    for i in range(896 - len(instructions)):
+        file.write("000000000\n")
+    for i in range(len(label_memory)):
+        file.write(f"{label_memory[i][:9]}\n")
+        file.write(f"{label_memory[i][9:]}\n")
 
-file.write("\n% Beginning of instruction memory %\n\n")
-for i in range(len(instructions)):
-    file.write(f"{i:4d}        : {instructions[i]};\n")
-file.write(f"[{len(instructions)}..895]  : 000000000;\n")
-file.write("\n% Beginning of label memory %\n\n")
+    file.close()
+else:
+    file = open(args.output + ".mif", "w")
 
-start_point = 896
-for i in range(len(label_memory)):
-    if i >= label_count:
-        file.write(f"[{(i * 2 + start_point)}..1023] : 000000000;\n")
-        break
-    file.write(f"{(i * 2 + start_point):4d}        : {label_memory[i][:9]};\n")
-    file.write(f"{(i * 2 + start_point + 1):4d}        : {(label_memory[i][9:])};\n")
+    file.write("DEPTH = 1024;\n")
+    file.write("WIDTH = 9;\n")
+    file.write("ADDRESS_RADIX = DEC;\n")
+    file.write("DATA_RADIX = BIN;\n")
+    file.write("CONTENT\n")
+    file.write("BEGIN\n")
+
+    file.write("\n% Beginning of instruction memory %\n\n")
+    for i in range(len(instructions)):
+        file.write(f"{i:4d}        : {instructions[i]};\n")
+    file.write(f"[{len(instructions)}..895]  : 000000000;\n")
+    file.write("\n% Beginning of label memory %\n\n")
+
+    start_point = 896
+    for i in range(len(label_memory)):
+        if i >= label_count:
+            file.write(f"[{(i * 2 + start_point)}..1023] : 000000000;\n")
+            break
+        file.write(f"{(i * 2 + start_point):4d}        : {label_memory[i][:9]};\n")
+        file.write(f"{(i * 2 + start_point + 1):4d}        : {(label_memory[i][9:])};\n")
 
 
-file.write("\nEND;")
-print(f"[INFO] Saved machine code to {args.output}.mif.")
-file.close()
+    file.write("\nEND;")
+    print(f"[INFO] Saved machine code to {args.output}.mif.")
+    file.close()
 
 end = time.perf_counter()
 print(f"[INFO] Assembling time: {(end - start) * 1000:.3f} ms.")
