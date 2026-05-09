@@ -1,7 +1,7 @@
 //main function 3
 #program-3-multiply
     //initialize loop counter in r7
-    dist r0
+    xor r0
     copy r7
     copy r6 //memory read address for function output
 
@@ -43,7 +43,7 @@
         add r2 r0
         copy r2
 
-        dist r0
+        xor r0
         addc r1
         copy r1
 
@@ -74,7 +74,7 @@
         add r2 r0
         copy r2
 
-        dist r0
+        xor r0
         addc r1
         copy r1
 
@@ -104,7 +104,7 @@
             load r6 2
             not r0
             copy r7
-            dist r0
+            xor r0
             addc r7 //r7 + 0 + carry
             store r6 2
             
@@ -112,7 +112,7 @@
             load r6 1
             not r0
             copy r7
-            dist r0
+            xor r0
             addc r7 //r7 + 0 + carry
             store r6 1
 
@@ -120,7 +120,7 @@
             load r6
             not r0
             copy r7
-            dist r0
+            xor r0
             addc r7 //r7 + 0 + carry
             store r6
 
@@ -158,14 +158,14 @@
 // output: mem[0-3]: 32-bit product
 #multiply-32
     //initialize product to zero
-    dist r0
+    xor r0
     copy r2
     copy r3
     copy r4
     copy r5
     
     //initialize constants
-    dist r0
+    xor r0
     copy r6       // r6 = 0 (memory pointer and loop comparison)
     imm r7 1      // r7 = 1 (decrement and bit masking)
     
@@ -192,7 +192,7 @@
         jumppos #skip-add //skip addition if MSB is 0
             
             //add LSBs
-            load r6 3     //r0 = mem[3] (multiplicand LSB)
+            load r6 3     //r0 = mem[3] (multiplicand MSB)
             add r5 r0     //r0 = r5 + r0 and set carry
             copy r5
 
@@ -202,11 +202,11 @@
             copy r4
 
             // propagate carry
-            dist r0       //r0 = 0
+            xor r0       //r0 = 0
             addc r3       //r0 = r0 + r3 + carry
             copy r3
 
-            dist r0       //r0 = 0
+            xor r0       //r0 = 0
             addc r2       //r0 = r0 + r2 + carry
             copy r2
 

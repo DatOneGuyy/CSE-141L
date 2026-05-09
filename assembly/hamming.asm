@@ -24,7 +24,7 @@
     copy r6
     
     //initialize outer loop counter, increment value, and max
-    dist r0
+    xor r0
     copy r7
     copy r2
     imm r1 2
@@ -80,7 +80,8 @@
     load r3
 
     //calculate distance
-    dist r4
+    xor r4
+    popcnt r0
     copy r5
 
     //load LSBs
@@ -89,7 +90,8 @@
     load r3 1
 
     //calculate distance
-    dist r4
+    xor r4
+    popcnt r0
     add r0 r5
 
     return

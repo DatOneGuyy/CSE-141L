@@ -31,7 +31,7 @@ opcodes["pop"] = "000"
 
 opcodes["copy"] = "010"
 
-opcodes["dist"] = "011"
+opcodes["popcnt"] = "011"
 opcodes["not"] = "011"
 opcodes["and"] = "011"
 opcodes["xor"] = "011"
@@ -220,7 +220,7 @@ for line in delabeled_data:
                 code += "00"
             else:
                 code += pad_zeroes(bin(int(tokens[2]))[2:], 2)
-        case "dist":
+        case "popcnt":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
             code += "000"
         case "not":

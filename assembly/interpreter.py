@@ -324,8 +324,8 @@ while pc < len(data):
             negative = get2c(registers[0] & 0xFF) < 0
 
             print(f"Registers: {registers}")
-        case "dist":
-            registers[0] = dist(registers[int(tokens[1][1:])], registers[0])
+        case "popcnt":
+            registers[0] = registers[int(tokens[1][1:])].bit_count()
 
             zero = (registers[0] == 0)
             negative = get2c(registers[0] & 0xFF) < 0

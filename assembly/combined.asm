@@ -24,7 +24,7 @@
     copy r6
     
     //initialize outer loop counter, increment value, and max
-    dist r0
+    xor r0
     copy r7
     copy r2
     imm r1 2
@@ -80,7 +80,8 @@
     load r3
 
     //calculate distance
-    dist r4
+    xor r4
+    popcnt r0
     copy r5
 
     //load LSBs
@@ -89,7 +90,8 @@
     load r3 1
 
     //calculate distance
-    dist r4
+    xor r4
+    popcnt r0
     add r0 r5
 
     return
@@ -105,7 +107,7 @@ halt
     imm r1 4
     lshift r1 4
     copy r1
-    dist r0
+    xor r0
 
     push r6+
     call #merge-sort
@@ -125,7 +127,7 @@ halt
     load r3 1
     copy r5
 
-    dist r0
+    xor r0
     copy r1 //stores address 0
     
     //load smallest into r6/r7
@@ -158,7 +160,7 @@ halt
     //r6-r7 - smallest difference seen so far
 
     //initialize loop counter
-    dist r0
+    xor r0
     copy r2
 
     //set loop limit at 62
@@ -237,7 +239,7 @@ halt
 //args: (r4: MSB 1, r5: LSB 1, r6: MSB 2, r7: LSB 2) => (r0: MSB, r1: LSB)
 #subtract
     //set constants
-    dist r0
+    xor r0
     copy r3
     imm r2 1
 
@@ -321,7 +323,7 @@ halt
     copy r4    //set up r4
 
     //initialize counters
-    dist r0
+    xor r0
     copy r2
     copy r3
 
@@ -624,7 +626,7 @@ halt
 //main function 3
 #program-3-multiply
     //initialize loop counter in r7
-    dist r0
+    xor r0
     copy r7
     copy r6 //memory read address for function output
 
@@ -666,7 +668,7 @@ halt
         add r2 r0
         copy r2
 
-        dist r0
+        xor r0
         addc r1
         copy r1
 
@@ -697,7 +699,7 @@ halt
         add r2 r0
         copy r2
 
-        dist r0
+        xor r0
         addc r1
         copy r1
 
@@ -727,7 +729,7 @@ halt
             load r6 2
             not r0
             copy r7
-            dist r0
+            xor r0
             addc r7 //r7 + 0 + carry
             store r6 2
             
@@ -735,7 +737,7 @@ halt
             load r6 1
             not r0
             copy r7
-            dist r0
+            xor r0
             addc r7 //r7 + 0 + carry
             store r6 1
 
@@ -743,7 +745,7 @@ halt
             load r6
             not r0
             copy r7
-            dist r0
+            xor r0
             addc r7 //r7 + 0 + carry
             store r6
 
@@ -781,14 +783,14 @@ halt
 // output: mem[0-3]: 32-bit product
 #multiply-32
     //initialize product to zero
-    dist r0
+    xor r0
     copy r2
     copy r3
     copy r4
     copy r5
     
     //initialize constants
-    dist r0
+    xor r0
     copy r6       // r6 = 0 (memory pointer and loop comparison)
     imm r7 1      // r7 = 1 (decrement and bit masking)
     
@@ -825,11 +827,11 @@ halt
             copy r4
 
             // propagate carry
-            dist r0       //r0 = 0
+            xor r0       //r0 = 0
             addc r3       //r0 = r0 + r3 + carry
             copy r3
 
-            dist r0       //r0 = 0
+            xor r0       //r0 = 0
             addc r2       //r0 = r0 + r2 + carry
             copy r2
 

@@ -1,4 +1,3 @@
-
 //main function 2
 #program-2-pairs
     //sort numbers before processing
@@ -7,7 +6,7 @@
     imm r1 4
     lshift r1 4
     copy r1
-    dist r0
+    xor r0
 
     push r6+
     call #merge-sort
@@ -27,7 +26,7 @@
     load r3 1
     copy r5
 
-    dist r0
+    xor r0
     copy r1 //stores address 0
     
     //load smallest into r6/r7
@@ -60,7 +59,7 @@
     //r6-r7 - smallest difference seen so far
 
     //initialize loop counter
-    dist r0
+    xor r0
     copy r2
 
     //set loop limit at 62
@@ -139,7 +138,7 @@
 //args: (r4: MSB 1, r5: LSB 1, r6: MSB 2, r7: LSB 2) => (r0: MSB, r1: LSB)
 #subtract
     //set constants
-    dist r0
+    xor r0
     copy r3
     imm r2 1
 
@@ -223,7 +222,7 @@
     copy r4    //set up r4
 
     //initialize counters
-    dist r0
+    xor r0
     copy r2
     copy r3
 
