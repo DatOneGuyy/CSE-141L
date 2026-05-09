@@ -64,7 +64,7 @@ always_comb begin
         end
         3'b011: begin
             unique case (funct)
-                3'b000: alu_out = $countones(r1 ^ r2);
+                3'b000: alu_out = $countones(r1);
                 3'b001: alu_out = ~r1;
                 3'b010: alu_out = r1 ^ r2;
                 3'b011: alu_out = r1 & r2;

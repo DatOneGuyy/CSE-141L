@@ -79,7 +79,7 @@ initial begin
     opcode = 3'b011;
     funct = 3'b000; // countones(r1 ^ r2)
     r1 = 8'b10101010; r2 = 8'b01010101;
-    #1; $display("COUNTONES XOR: r1=%b, r2=%b, out=%d", r1, r2, alu_out);
+    #1; $display("POPCNT: r1=%b, out=%d", r1, alu_out);
     funct = 3'b001; // ~r1
     #1; $display("NOT: r1=%b, out=%b", r1, alu_out);
     funct = 3'b010; // r1 ^ r2
