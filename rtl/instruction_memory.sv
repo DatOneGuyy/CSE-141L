@@ -16,10 +16,6 @@ logic [8:0] label_mem [0:127];
 assign instruction_mem = mem[0:895];
 assign label_mem = mem[896:1023];
 
-initial begin
-    $readmemb("../rtl/programs/branching.bin", mem);
-end
-
 assign instruction = mem[pc];
 assign jump_target = {label_mem[{label_address, 1'b1}], label_mem[{label_address, 1'b0}]};
 

@@ -1,4 +1,4 @@
-module top_tb;
+module branching_tb;
 
 bit clk;
 logic start;
@@ -20,7 +20,14 @@ task automatic advance_clk();
 endtask
 
 logic [12:0] count = 0;
-logic debug_pause = 1;
+logic debug_pause = 0;
+
+initial begin
+    $readmemb("../rtl/programs/branching.bin", dut.instruction_memory_inst.mem);
+end
+
+logic [7:0] branch_results;
+assign branch_results = {dut.data_memory_inst.core[0] == 8'b1, dut.data_memory_inst.core[1] == 8'b1, dut.data_memory_inst.core[2] == 8'b1, dut.data_memory_inst.core[3] == 8'b1, dut.data_memory_inst.core[4] == 8'b1, dut.data_memory_inst.core[5] == 8'b1, dut.data_memory_inst.core[6] == 8'b1, dut.data_memory_inst.core[7] == 8'b1};
 
 initial begin 
     $dumpfile("../dump/top_dump.vcd");
@@ -34,11 +41,11 @@ initial begin
     $display("Instruction number: %d", count++);
     display_info();
 
-    repeat (16) begin
+    forever begin
         advance_clk();
 
-        if (count == 2 & debug_pause) begin
-            $display("inspection: %b %b %b", dut.next_pc_inst.one_hot_code, dut.next_pc_inst.extended_flags, dut.next_pc_inst.jump_target);
+        if (count == 77 & debug_pause) begin
+            $display("inspection: %b %b", dut.next_pc_inst.extended_flags, dut.next_pc_inst.one_hot_code);
         end
 
         $display("Instruction number: %d", count++);
@@ -46,11 +53,11 @@ initial begin
 
         if (done) begin
             $display("Finished program");
+            if (&branch_results) $display("Passed all branching tests");
+            else $display("Failed branching tests. Results: %b", branch_results);
             $finish;
         end
     end
-
-    $finish;
 end
 
 endmodule

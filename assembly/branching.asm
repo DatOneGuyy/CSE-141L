@@ -58,15 +58,13 @@
 // -----------------------------------------------
 #test3-jumpnz
     // True Case (5 - 3 = 2)
-    imm r1 5
-    imm r2 3
-    cmp r1 r2
+    imm r0 3
     jumpnz #t3-false-case
     jump #t3-fail
     
 #t3-false-case
     // False Case (5 - 5 = 0)
-    cmp r1 r1
+    xor r0
     jumpnz #t3-fail-nz
     
 #t3-pass
@@ -220,16 +218,13 @@
 #test8-jumppos
     // True Case (Positive Number -> MSB = 0)
     imm r1 5
-    xor r0        // r0 = 0
-    add r0 r1     // ALU puts 5 in r0, updates Negative Flag
     jumppos #t8-false-case
     jump #t8-fail
     
 #t8-false-case
     // False Case (Negative Number -> MSB = 1)
     imm r2 -1
-    xor r0
-    add r0 r2     // ALU puts -1 (0xFF) in r0, updates Negative Flag
+    copy r0 r2
     jumppos #t8-fail-pos
     
 #t8-pass

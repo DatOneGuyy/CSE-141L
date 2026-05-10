@@ -44,6 +44,6 @@ end
 //z, nz, and pos flags set combinationally
 assign flags[6] = ~|(registers[0]);
 assign flags[5] = |(registers[0]);
-assign flags[4] = registers[0][7];
+assign flags[4] = ~registers[0][7];
 
 endmodule

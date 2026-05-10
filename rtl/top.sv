@@ -169,4 +169,6 @@ always_ff @(posedge clk) begin
     endcase
 end
 
+assign done = (current_state == halted);
+
 endmodule
