@@ -38,19 +38,27 @@ assign imm = instruction[2:0];
 
 assign mem_write_en = &(instruction[8:6]);
 
-assign pc_write_en = ~|(instruction[8:6]);
+assign pc_write_en = (instruction[8:6] == 3'b001);
 
 assign read1_src = instruction[5:3];
-assign read2_src = (instruction[8] & ~instruction[6]) ? instruction[2:0] : 3'b0; //only read 2nd register for add/cmp
+assign read2_src = ((instruction[8] & ~instruction[6]) | (instruction[8:6] == 3'b010)) ? instruction[2:0] : 3'b0; //only read 2nd register for add/cmp/copy
 assign write_dest = (instruction[8] ~| instruction[6]) ? instruction[5:3] : 3'b0; //only write to other registers for imm/copy
-assign reg_write_en = ~((instruction[8:6] == 3'b100) | ((~|instruction[8:6] | &instruction[8:6]) & ~instruction[2]) | (instruction[8:6] == 3'b001)); //disable register writing for cmp, push, store, jumps
+
+logic is_cmp = (instruction[8:6] == 3'b100);
+logic is_push = ~|{instruction[8:5], instruction[2:0]};
+logic is_pop = ~|{instruction[8:6], instruction[2:0]} & instruction[5];
+logic is_load = &instruction[8:6] & instruction[2];
+logic is_store = &instruction[8:6] & ~instruction[2];
+logic is_jump = (instruction[8:6] == 3'b001);
+
+assign reg_write_en = ~|{is_cmp, is_push, is_store, is_jump}; //disable register writing for cmp, push, store, jumps
 
 assign stack_controller_op_type = instruction[5];
 assign stack_controller_mask = instruction[4:3];
 
 always_comb begin
-    if (&instruction[8:6] & ~instruction[2]) write_src = 2'b01;
-    else if (~|instruction[8:6] & ~instruction[2]) write_src = 2'b10;
+    if (is_load) write_src = 2'b01;
+    else if (is_pop) write_src = 2'b10;
     else write_src = 2'b00;
 end
 

@@ -84,7 +84,7 @@ new options
 
 label format:
 even-indexed entries: {pc[8:0]}
-odd-indexed entries:  {pc[9], return, call, z, nz, pos, lt, gt, signed}
+odd-indexed entries:  {pc[9], return, unconditional, z, nz, pos, lt, gt, signed}
 
 flags: {carry, z, nz, pos, lt, gt, lts, gts}
 

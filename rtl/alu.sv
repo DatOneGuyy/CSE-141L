@@ -34,7 +34,7 @@ always_comb begin
             alu_flags[3:0] = {r1_u < r2_u, r1_u > r2_u, r1_s < r2_s, r1_s > r2_s};
             write_flags_en = 1'b1;
         end
-        3'b010: alu_out = r1;
+        3'b010: alu_out = r2;
         3'b101: begin
             if (imm[2]) begin
                 unique case (imm[1:0])
@@ -75,7 +75,7 @@ always_comb begin
                     {alu_flags[4], alu_out} = r1 + r2 + {7'b0, carry_in};
                     write_flags_en = 1'b1;
                 end
-                3'b101: alu_out = r1 - r2;
+                3'b101: alu_out = r2 - r1;
                 3'b110: begin
                     {alu_flags[4], alu_out} = {r1, carry_in};
                     write_flags_en = 1'b1;

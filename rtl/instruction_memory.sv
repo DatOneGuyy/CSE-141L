@@ -17,7 +17,7 @@ assign instruction_mem = mem[0:895];
 assign label_mem = mem[896:1023];
 
 initial begin
-    $readmemb("../rtl/programs/simple.bin", mem);
+    $readmemb("../rtl/programs/branching.bin", mem);
 end
 
 assign instruction = mem[pc];

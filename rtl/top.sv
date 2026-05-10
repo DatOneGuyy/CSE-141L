@@ -137,8 +137,36 @@ next_pc next_pc_inst(
     .new_pc(new_pc)
 );
 
+typedef enum {
+    exec, stack, halted
+} states;
+
+states current_state;
+initial begin
+    current_state = halted;
+end
+
 always_ff @(posedge clk) begin
-    pc <= new_pc;
+    unique case (current_state)
+        exec: begin
+            if (instruction == 9'b011000111) begin
+                current_state <= halted;
+            end
+            else begin
+                pc <= new_pc;
+            end
+        end
+
+        stack: begin
+
+        end
+
+        halted: begin
+            if (start) current_state <= exec;
+        end
+
+        default: current_state <= halted;
+    endcase
 end
 
 endmodule
