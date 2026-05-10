@@ -8,9 +8,9 @@ module data_memory (
     input logic [7:0] data_in,
 
     //from decoder
-    input logic write_en
+    input logic write_en,
 
-    output logic [7:0] data_out,
+    output logic [7:0] data_out
 );
 
 logic [7:0] core [0:255];

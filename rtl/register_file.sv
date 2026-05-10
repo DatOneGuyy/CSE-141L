@@ -4,12 +4,8 @@ module register_file (
     //from decoder
     input logic [2:0] read1_src,
     input logic [2:0] read2_src,
-    input logic [7:0] write_dest,
+    input logic [2:0] write_dest,
     input logic write_en,
-
-    //to ALU
-    output logic [7:0] read1_result,
-    output logic [7:0] read2_result
 
     //from ALU/data memory/stack
     input logic [7:0] write_data,
@@ -18,16 +14,21 @@ module register_file (
     input logic [4:0] alu_flags,
     input logic write_flags_en,
     
+    //to ALU
+    output logic [7:0] read1_result,
+    output logic [7:0] read2_result,
+
     output logic [7:0] flags
 );
 
 logic [7:0] registers [0:7];
-logic [7:0] flag_registers;
+logic [4:0] flag_registers;
 
 assign read1_result = registers[read1_src];
 assign read2_result = registers[read2_src];
 
-assign flags = flag_registers;
+assign flags[7] = flag_registers[4];
+assign flags[3:0] = flag_registers[3:0];
 
 always_ff @(posedge clk) begin
     if (write_en) registers[write_dest] <= write_data;
@@ -36,8 +37,7 @@ end
 //lt, gt, lts, and gts flags written from ALU
 always_ff @(posedge clk) begin
     if (write_flags_en) begin
-        flags[7] <= alu_flags[4];
-        flags[3:0] <= alu_flags[3:0];
+        flag_registers <= alu_flags;
     end
 end
 

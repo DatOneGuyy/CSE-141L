@@ -1,17 +1,20 @@
 module decoder (
     //from instruction memory
-    input logic [8:0] instruction
+    input logic [8:0] instruction,
+
+    //to instruction memory
+    output logic [5:0] label_address,
 
     //to ALU
     output logic [2:0] opcode,
     output logic [2:0] funct,
-    output logic [1:0] imm,
+    output logic [2:0] imm,
 
     //to data memory
     output logic mem_write_en,
 
     //to pc
-    output logic pc_write_en
+    output logic pc_write_en,
 
     //to register file
     output logic [2:0] read1_src,
@@ -21,8 +24,13 @@ module decoder (
 
     //to stack controller
     output logic stack_controller_op_type,
-    output logic [1:0] stack_controller_mask
+    output logic [1:0] stack_controller_mask,
+
+    //to register write MUX
+    output logic [1:0] write_src
 );
+
+assign label_address = instruction[5:0];
 
 assign opcode = instruction[8:6];
 assign funct = instruction[2:0];
@@ -39,5 +47,11 @@ assign reg_write_en = ~((instruction[8:6] == 3'b100) | ((~|instruction[8:6] | &i
 
 assign stack_controller_op_type = instruction[5];
 assign stack_controller_mask = instruction[4:3];
+
+always_comb begin
+    if (&instruction[8:6] & ~instruction[2]) write_src = 2'b01;
+    else if (~|instruction[8:6] & ~instruction[2]) write_src = 2'b10;
+    else write_src = 2'b00;
+end
 
 endmodule

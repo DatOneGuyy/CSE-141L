@@ -62,7 +62,7 @@ always_comb begin
             endcase
         end
         3'b111: begin
-            {alu_flags[4], alu_out} = r1 + {5'b0, imm[1:0]};
+            {alu_flags[4], alu_out} = r1 + {6'b0, imm[1:0]};
             write_flags_en = 1'b1;
         end
         3'b011: begin
