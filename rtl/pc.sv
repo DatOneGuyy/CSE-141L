@@ -1,11 +1,20 @@
 module pc_block (
+    //from top-level module
     input logic current_pc [9:0],
-    input logic flags [6:0], //carry flag unused in branching so only 7 bits passed
-    input logic jump_target [17:0];
-    input logic top_address [9:0];
-    input logic pc_write_en;
 
-    output logic new_pc [9:0];
+    //from register file
+    input logic flags [6:0], //carry flag unused in branching so only 7 bits passed
+
+    //from instruction memory
+    input logic jump_target [17:0],
+    
+    //from stack
+    input logic top_address [9:0],
+
+    //from decoder
+    input logic pc_write_en,
+
+    output logic new_pc [9:0]
 );
 
 logic pc_p1 [9:0];

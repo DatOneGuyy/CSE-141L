@@ -1,12 +1,15 @@
 module alu (
+    //from decoder
     input logic [2:0] opcode,
     input logic [2:0] funct,
+    input logic [2:0] imm,
 
+    //from register file
     input logic [7:0] r1,
     input logic [7:0] r2,
-    input logic [2:0] imm,
     input logic carry_in,
 
+    //out
     output logic [7:0] alu_out,
     output logic [4:0] alu_flags,
     output logic write_flags_en
@@ -59,7 +62,7 @@ always_comb begin
             endcase
         end
         3'b111: begin
-            {alu_flags[4], alu_out} = r1 + {5'b0, imm};
+            {alu_flags[4], alu_out} = r1 + {5'b0, imm[1:0]};
             write_flags_en = 1'b1;
         end
         3'b011: begin

@@ -1,17 +1,23 @@
 module register_file (
-    input clk, //combinational reads, synchronous writes
+    input logic clk,
 
+    //from decoder
     input logic [2:0] read1_src,
     input logic [2:0] read2_src,
-    output logic [7:0] read1_result,
-    output logic [7:0] read2_result
-
-    input logic [7:0] write_data,
     input logic [7:0] write_dest,
     input logic write_en,
 
+    //to ALU
+    output logic [7:0] read1_result,
+    output logic [7:0] read2_result
+
+    //from ALU/data memory/stack
+    input logic [7:0] write_data,
+
+    //from ALU
     input logic [4:0] alu_flags,
     input logic write_flags_en,
+    
     output logic [7:0] flags
 );
 

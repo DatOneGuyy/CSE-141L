@@ -1,15 +1,28 @@
 module stack_controller (
     input logic clk,
 
+    //from top-level module
     input logic start,
-    input logic [2:0] field,
 
+    //from decoder
+    input logic op_type,
+    input logic [1:0] inst_mask,
+
+    //from stack
+    input logic [1:0] stack_mask,
+
+    //to stack
     output logic [3:0] stack_opcode,
+    output logic [1:0] mask_out,
 
-    output logic [2:0] write_dest,
-    output logic write_en,
+    //to register file
     output logic [2:0] read1_src,
     output logic [2:0] read2_src
+    output logic [2:0] write_dest,
+    output logic reg_write_en,
+
+    //to top-level module
+    output logic stack_override
 );
 
 typedef enum {
@@ -26,24 +39,34 @@ initial begin
 end
 
 logic [2:0] field_latch;
+assign mask_out = field_latch[1:0];
+
 always_ff @(posedge clk) begin
     unique case (state)
         idle: begin
             if (start) begin
-                field_latch <= field;
+                stack_override <= 1'b1;
 
+                //field latch determines what operations to cycle through
+                //mask is chosen from stack for pops, from instruction for pushes
+                //op type always comes from instruction
                 if (op_type) begin
                     state <= restore_7;
+                    field_latch <= {op_type, stack_mask};
                 end
                 else begin
                     state <= push_67;
+                    field_latch <= {op_type, inst_mask};
                 end
             end
         end
 
         push_67: begin
             unique case (field_latch[1:0])
-                2'b11: state <= idle;
+                2'b11: begin
+                    state <= idle;
+                    stack_override <= 1'b0;
+                end
                 2'b10: state <= push_5;
                 default: state <= push_45;
             endcase
@@ -51,7 +74,10 @@ always_ff @(posedge clk) begin
 
         push_45: begin
             if (field_latch[1:0] == 2'b00) state <= push_23;
-            else state <= idle;
+            else begin
+                state <= idle;
+                stack_override <= 1'b0;
+            end
         end
 
         restore_7: begin
@@ -85,7 +111,10 @@ always_ff @(posedge clk) begin
         restore_3: state <= pop_2;
         
         //covers push_5, push_23, pop_6, pop_5, pop_4, and pop_2
-        default: state <= idle;
+        default: begin
+            state <= idle;
+            stack_override <= 1'b0;
+        end
     endcase
 end
 
@@ -114,11 +143,10 @@ end
 
 //set register file control signals
 always_comb begin
-    //avoid latches
     read1_src = 3'b000;
     read2_src = 3'b000;
     write_dest = 3'b000;
-    write_en = 1'b0;
+    reg_write_en = 1'b0;
 
     unique case (state)
         push_67: begin
@@ -140,44 +168,47 @@ always_comb begin
 
         restore_7: begin
             write_dest = 3'b111;
-            write_en = 1'b1;
+            reg_write_en = 1'b1;
         end
         restore_6: begin
             write_dest = 3'b110;
-            write_en = 1'b1;
+            reg_write_en = 1'b1;
         end
         restore_5: begin
             write_dest = 3'b101;
-            write_en = 1'b1;
+            reg_write_en = 1'b1;
         end
         restore_4: begin
             write_dest = 3'b100;
-            write_en = 1'b1;
+            reg_write_en = 1'b1;
         end
         restore_3: begin
             write_dest = 3'b011;
-            write_en = 1'b1;
+            reg_write_en = 1'b1;
         end
 
         pop_6: begin
             write_dest = 3'b110;
-            write_en = 1'b1;
+            reg_write_en = 1'b1;
         end
         pop_5: begin
             write_dest = 3'b101;
-            write_en = 1'b1;
+            reg_write_en = 1'b1;
         end
         pop_4: begin
             write_dest = 3'b100;
-            write_en = 1'b1;
+            reg_write_en = 1'b1;
         end
         pop_2: begin
             write_dest = 3'b010;
-            write_en = 1'b1;
+            reg_write_en = 1'b1;
         end
 
         default: begin
-            //
+            read1_src = 3'b000;
+            read2_src = 3'b000;
+            write_dest = 3'b000;
+            reg_write_en = 1'b0;
         end
     endcase
 end

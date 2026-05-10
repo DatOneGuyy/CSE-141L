@@ -1,7 +1,10 @@
 module instruction_memory (
     input logic clk,
+
+    //from pc
     input logic [9:0] pc,
     input logic [5:0] label_address,
+    
     output logic [8:0] instruction,
     output logic [17:0] jump_target,
 );

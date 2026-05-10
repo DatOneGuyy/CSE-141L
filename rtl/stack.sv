@@ -3,14 +3,21 @@ import types::*;
 module stack_module (
     input logic clk,
 
+    //from stack controller
     input logic [3:0] stack_opcode,
     input logic [1:0] mask,
 
+    //from register file
     input logic [7:0] r1,
     input logic [7:0] r2,
 
+    //to register file
     output logic [7:0] restore,
+
+    //to pc
     output logic [9:0] top_address,
+
+    //to stack controller
     output logic [1:0] top_mask
 );
 
@@ -95,7 +102,7 @@ always_ff @(posedge clk) begin
         end
 
         default: begin
-            //
+            //no-op
         end
     endcase
 end
