@@ -1,54 +1,65 @@
-module decoder(
+module decoder (
+    //from instruction memory
     input logic [8:0] instruction,
 
-    output logic [2:0] reg_read1,
-    output logic [2:0] reg_read2,
+    //to instruction memory
+    output logic [5:0] label_address,
+
+    //to ALU
+    output logic [2:0] opcode,
+    output logic [2:0] funct,
+    output logic [2:0] imm,
+
+    //to data memory
+    output logic mem_write_en,
+
+    //to pc
+    output logic pc_write_en,
+
+    //to register file
+    output logic [2:0] read1_src,
+    output logic [2:0] read2_src,
+    output logic [2:0] write_dest,
     output logic reg_write_en,
 
-    output logic pc_write_en,
-    output logic stack_write_en,
+    //to stack controller
+    output logic stack_controller_op_type,
+    output logic [1:0] stack_controller_mask,
 
-    output logic lt_flag_write_en,
-    output logic carry_flag_write_en,
-
-    output logic shift_direction,
-
-    output logic use_immediate,
-    output logic [2:0] immediate,
-
-    output logic memory_en,
-    output logic memory_rw_type
+    //to register write MUX
+    output logic [1:0] write_src
 );
 
-logic [2:0] opcode, field1, field2;
-logic [1:0] subfield;
-logic read_reg0, write_reg_nonzero;
+assign label_address = instruction[5:0];
 
 assign opcode = instruction[8:6];
-assign field1 = instruction[5:3];
-assign field2 = instruction[2:0];
-assign subfield = instruction[1:0];
+assign funct = instruction[2:0];
+assign imm = instruction[2:0];
 
-assign read_reg0 = &(opcode[1:0]);
-assign write_reg_nonzero = &(field2) & (~|opcode);
+assign mem_write_en = &(instruction[8:6]);
 
-assign reg_read1 = field1;
-assign reg_read2 = read_reg0 ? 1'b0 : field2;
-assign reg_write = write_reg_nonzero ? field1 : 3'b0;
+assign pc_write_en = (instruction[8:6] == 3'b001);
 
-assign pc_write_en = (opcode == 3'b001);
+assign read1_src = instruction[5:3];
+assign read2_src = ((instruction[8] & ~instruction[6]) | (instruction[8:6] == 3'b010)) ? instruction[2:0] : 3'b0; //only read 2nd register for add/cmp/copy
+assign write_dest = (instruction[8] ~| instruction[6]) ? instruction[5:3] : 3'b0; //only write to other registers for imm/copy
 
-assign stack_write_en = (~|{opcode, field2}) & field1[2];
+logic is_cmp = (instruction[8:6] == 3'b100);
+logic is_push = ~|{instruction[8:5], instruction[2:0]};
+logic is_pop = ~|{instruction[8:6], instruction[2:0]} & instruction[5];
+logic is_load = &instruction[8:6] & instruction[2];
+logic is_store = &instruction[8:6] & ~instruction[2];
+logic is_jump = (instruction[8:6] == 3'b001);
 
-assign lt_flag_write_en = (opcode == 3'b100);
-assign carry_flag_write_en = (opcode == 3'b011 & subfield[0]) | (opcode == 3'b110);
+assign reg_write_en = ~|{is_cmp, is_push, is_store, is_jump}; //disable register writing for cmp, push, store, jumps
 
-assign shift_direction = field2[2];
+assign stack_controller_op_type = instruction[5];
+assign stack_controller_mask = instruction[4:3];
 
-assign use_immediate = (opcode[2] & opcode[0]) | write_reg_nonzero;
-assign immediate = {(|field2) ? field2[2] : 1'b0, subfield};
-
-assign memory_en = &(opcode);
-assign memory_rw_type = field2[2];
+always_comb begin
+    if (is_load) write_src = 2'b01;
+    else if (is_pop) write_src = 2'b10;
+    else write_src = 2'b00;
+end
 
 endmodule

@@ -6,9 +6,15 @@ start = time.perf_counter()
 parser = argparse.ArgumentParser(description="Assembler")
 parser.add_argument("name", help="File to read")
 parser.add_argument("-o", "--output", help="Output file to write binary to", default="out")
+parser.add_argument("-b", "--bin", action="store_true", help="Format output as a binary")
 
 args = parser.parse_args()
 print("[INFO] Parsed assembly command line arguments.")
+
+if args.bin:
+    print("[INFO] Assembling into binary")
+else:
+    print("[INFO] Assembling into memory initialization file")
 
 file = open(args.name, "r")
 print("[INFO] Found assembly file.")
@@ -31,7 +37,7 @@ opcodes["pop"] = "000"
 
 opcodes["copy"] = "010"
 
-opcodes["dist"] = "011"
+opcodes["popcnt"] = "011"
 opcodes["not"] = "011"
 opcodes["and"] = "011"
 opcodes["xor"] = "011"
@@ -53,6 +59,19 @@ opcodes["cmp"] = "100"
 def pad_zeroes(input_str, length):
     input_str = "0" * (length - len(input_str)) + input_str
     return input_str
+
+def get_type(lower_byte):
+    match (lower_byte):
+        case "10000000": return "return"
+        case "01000000": return "unconditional"
+        case "00100000": return "zero"
+        case "00010000": return "nonzero"
+        case "00001000": return "positive"
+        case "00000100": return "less than"
+        case "00000101": return "signed less than"
+        case "00000010": return "greater than"
+        case "00000011": return "signed greater than"
+        case _: return "unknown"
 
 # remove comments and whitespace
 data = []
@@ -83,7 +102,7 @@ for line in data:
         delabeled_data.append(line)
 print(f"[INFO] Identified {label_count} labels.")
 label_memory = ["0" * 18] * 64
-label_memory[0] = "0" * 11 + "1" + "0" * 6
+label_memory[0] = "0" * 10 + "1" + "0" * 7
 
 # detect incorrectly used labels
 marked_data = [(line + "`") for line in data]
@@ -132,9 +151,9 @@ for entry in mapping:
     
     match token:
         case "jump":
-            label_memory[mapping[entry][0]] += "00000000"
+            label_memory[mapping[entry][0]] += "01000000"
         case "call":
-            label_memory[mapping[entry][0]] += "10000000"
+            label_memory[mapping[entry][0]] += "01000000"
         case "jumpz":
             label_memory[mapping[entry][0]] += "00100000"
         case "jumpnz":
@@ -151,6 +170,8 @@ for entry in mapping:
             label_memory[mapping[entry][0]] += "00000011"
 #for entry in label_memory:
     #print(entry)
+for m in mapping:
+    print(f"{m}: {mapping[m]}")
 print("[INFO] Filled label memory.")
 
 instructions = []
@@ -212,15 +233,15 @@ for line in delabeled_data:
             if tokens[2] == "4":
                 code += "00"
             else:
-                code += pad_zeroes(bin(int(tokens[2]))[2:], 2)
+                code += pad_zeroes(bin(int(tokens[2]) - 1)[2:], 2)
         case "rshift":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
             code += "1"
             if tokens[2] == "4":
                 code += "00"
             else:
-                code += pad_zeroes(bin(int(tokens[2]))[2:], 2)
-        case "dist":
+                code += pad_zeroes(bin(int(tokens[2]) - 1)[2:], 2)
+        case "popcnt":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
             code += "000"
         case "not":
@@ -228,19 +249,19 @@ for line in delabeled_data:
             code += "001"
         case "and":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
-            code += "010"
+            code += "011"
         case "xor":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
-            code += "011"
+            code += "010"
         case "addc":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
-            code += "000"
+            code += "100"
         case "sub":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
-            code += "001"
+            code += "101"
         case "lshiftc":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
-            code += "010"
+            code += "110"
         case "halt":
             code += "000111"
         case _:
@@ -259,33 +280,51 @@ print("[INFO] Filled instruction memory.")
 
 file.close()
 
-file = open(args.output + ".mif", "w")
+if args.bin:
+    file = open(args.output + ".bin", "w")
 
-file.write("DEPTH = 1024;\n")
-file.write("WIDTH = 9;\n")
-file.write("ADDRESS_RADIX = DEC;\n")
-file.write("DATA_RADIX = BIN;\n")
-file.write("CONTENT\n")
-file.write("BEGIN\n")
+    for i in range(len(instructions)):
+        file.write(f"{instructions[i]}\n")
+    for i in range(896 - len(instructions)):
+        file.write("000000000\n")
+    for i in range(len(label_memory)):
+        file.write(f"{label_memory[i][:9]}\n")
+        file.write(f"{label_memory[i][9:]}\n")
 
-file.write("\n% Beginning of instruction memory %\n\n")
-for i in range(len(instructions)):
-    file.write(f"{i:4d}        : {instructions[i]};\n")
-file.write(f"[{len(instructions)}..895]  : 000000000;\n")
-file.write("\n% Beginning of label memory %\n\n")
+    file.close()
+else:
+    file = open(args.output + ".mif", "w")
 
-start_point = 896
-for i in range(len(label_memory)):
-    if i >= label_count:
-        file.write(f"[{(i * 2 + start_point)}..1023] : 000000000;\n")
-        break
-    file.write(f"{(i * 2 + start_point):4d}        : {label_memory[i][:9]};\n")
-    file.write(f"{(i * 2 + start_point + 1):4d}        : {(label_memory[i][9:])};\n")
+    file.write("DEPTH = 1024;\n")
+    file.write("WIDTH = 9;\n")
+    file.write("ADDRESS_RADIX = DEC;\n")
+    file.write("DATA_RADIX = BIN;\n")
+    file.write("CONTENT\n")
+    file.write("BEGIN\n")
+
+    file.write("\n% Beginning of instruction memory %\n\n")
+    for i in range(len(instructions)):
+        file.write(f"{i:4d}        : {instructions[i]};\n")
+    file.write(f"[{len(instructions)}..895]  : 000000000;\n")
+    file.write("\n% Beginning of label memory %\n\n")
+
+    start_point = 896
+    for i in range(len(label_memory)):
+        if i >= label_count:
+            file.write(f"[{(i * 2 + start_point)}..1023] : 000000000;\n")
+            break
+        if i == 0:
+            file.write(f"{(i * 2 + start_point):4d}        : {label_memory[i][:9]}; % return %\n")
+        else:
+            file.write(f"{(i * 2 + start_point):4d}        : {label_memory[i][:9]}; % {next(k for k, v in mapping.items() if v[0] == i)} %\n")
+
+        file.write(f"{(i * 2 + start_point + 1):4d}        : {(label_memory[i][9:])}; % Type: {get_type(label_memory[i][10:])} %\n")
+        file.write(25 * " " + f"% Target: {int(label_memory[i][:10], 2)} %\n\n")
 
 
-file.write("\nEND;")
-print(f"[INFO] Saved machine code to {args.output}.mif.")
-file.close()
+    file.write("\nEND;")
+    print(f"[INFO] Saved machine code to {args.output}.mif.")
+    file.close()
 
 end = time.perf_counter()
 print(f"[INFO] Assembling time: {(end - start) * 1000:.3f} ms.")

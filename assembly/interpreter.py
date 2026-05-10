@@ -324,8 +324,8 @@ while pc < len(data):
             negative = get2c(registers[0] & 0xFF) < 0
 
             print(f"Registers: {registers}")
-        case "dist":
-            registers[0] = dist(registers[int(tokens[1][1:])], registers[0])
+        case "popcnt":
+            registers[0] = registers[int(tokens[1][1:])].bit_count()
 
             zero = (registers[0] == 0)
             negative = get2c(registers[0] & 0xFF) < 0
@@ -409,10 +409,14 @@ hamming_solution = min_max_hamming_dist(input_memory)
 print(f"\nProgram 1: ")
 print(f"Expected: {hamming_solution}")
 print(f"Result: ({data_memory[64]}, {data_memory[65]})")
+if [hamming_solution[0], hamming_solution[1]] == [data_memory[64], data_memory[65]]:
+    print("Passed program 1")
 
 print(f"\nProgram 2: ")
 print(f"Expected: {n}, {m}")
 print(f"Result: {data_memory[66] * 256 + data_memory[67]}, {data_memory[68] * 256 + data_memory[69]}")
+if [n, m] == [data_memory[66] * 256 + data_memory[67], data_memory[68] * 256 + data_memory[69]]:
+    print("Passed program 2")
 
 input16 = parse_memory_to_signed_16bit(input_memory)
 multiplication_solution = []
@@ -421,6 +425,8 @@ for i in range(0, 32, 2):
 print(f"\nProgram 3: ")
 print(f"Expected: {multiplication_solution}")
 print(f"Result: {parse_memory_to_signed_32bit(data_memory[64:])}")
+if multiplication_solution == parse_memory_to_signed_32bit(data_memory[64:]):
+    print("Passed program 3")
 """
 print(f"mem[64, 65]: {data_memory[64]:08b}, {data_memory[65]:08b}")
 print(f"Solution   : {solution[0]:08b}, {solution[1]:08b}")

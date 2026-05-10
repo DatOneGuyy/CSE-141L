@@ -1,33 +1,49 @@
-import types::*;
+module register_file (
+    input logic clk,
 
-module register_file(
-    input clk,
-
+    //from decoder
     input logic [2:0] read1_src,
     input logic [2:0] read2_src,
-    output logic [7:0] read1_result,
-    output logic [7:0] read2_result
+    input logic [2:0] write_dest,
+    input logic write_en,
 
+    //from ALU/data memory/stack
     input logic [7:0] write_data,
-    input logic [7:0] write_dest,
-    input logic [7:0] write_en,
 
-    output logic [4:0] alu_flags,
+    //from ALU
+    input logic [4:0] alu_flags,
+    input logic write_flags_en,
+    
+    //to ALU
+    output logic [7:0] read1_result,
+    output logic [7:0] read2_result,
+
     output logic [7:0] flags
 );
 
 logic [7:0] registers [0:7];
+logic [4:0] flag_registers;
 
 assign read1_result = registers[read1_src];
 assign read2_result = registers[read2_src];
 
-always_ff @(posedge clk) begin
-    if (write_en)
-        registers[write_dest] <= write_data;
-end
+assign flags[7] = flag_registers[4];
+assign flags[3:0] = flag_registers[3:0];
 
 always_ff @(posedge clk) begin
-    
+    if (write_en) registers[write_dest] <= write_data;
 end
+
+//lt, gt, lts, and gts flags written from ALU
+always_ff @(posedge clk) begin
+    if (write_flags_en) begin
+        flag_registers <= alu_flags;
+    end
+end
+
+//z, nz, and pos flags set combinationally
+assign flags[6] = ~|(registers[0]);
+assign flags[5] = |(registers[0]);
+assign flags[4] = ~registers[0][7];
 
 endmodule

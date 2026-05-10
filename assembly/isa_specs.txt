@@ -84,7 +84,9 @@ new options
 
 label format:
 even-indexed entries: {pc[8:0]}
-odd-indexed entries:  {pc[9], call, return, z, nz, pos, lt, gt, signed}
+odd-indexed entries:  {pc[9], return, unconditional, z, nz, pos, lt, gt, signed}
+
+flags: {carry, z, nz, pos, lt, gt, lts, gts}
 
 stack sequence
 0000 - push 6/7
@@ -104,7 +106,7 @@ stack sequence
 1111 - restore 2 + pop
 
 push r2+
-0000 => 0001 => 0010 => 0011
+0000 => 0001 => 0011
 pop
 0100 => 0101 => 0110 => 0111 => 1000 => 1111
 

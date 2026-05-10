@@ -1,0 +1,144 @@
+{
+  "extensionVersion": "1.5.2",
+  "fileName": "e:\\CSE-141L\\dump\\alu_dump.vcd",
+  "markerTime": 1,
+  "altMarkerTime": null,
+  "displayTimeUnit": "ps",
+  "selectedSignal": null,
+  "zoomRatio": 46.523809523809526,
+  "scrollLeft": 0,
+  "displayedSignals": [
+    {
+      "dataType": "signal-separator",
+      "label": "Inputs",
+      "rowHeight": 1
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 2,
+      "name": "alu_tb.r1",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "r1",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 3,
+      "name": "alu_tb.r2",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "r2",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 4,
+      "name": "alu_tb.imm",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "imm",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 5,
+      "name": "alu_tb.carry_in",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "carry_in",
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 0,
+      "name": "alu_tb.opcode",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 1,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "opcode",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 1,
+      "name": "alu_tb.funct",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 1,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "funct",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "signal-separator",
+      "label": "-----------------",
+      "rowHeight": 1
+    },
+    {
+      "dataType": "signal-separator",
+      "label": "Outputs",
+      "rowHeight": 1
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 15,
+      "name": "alu_tb.dut.alu_out",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "alu_out",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 16,
+      "name": "alu_tb.dut.alu_flags",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 1,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "alu_flags",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 17,
+      "name": "alu_tb.dut.write_flags_en",
+      "numberFormat": "binary",
+      "colorIndex": 1,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "write_flags_en",
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    }
+  ]
+}

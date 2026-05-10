@@ -1,5 +1,7 @@
-dnamkung-asm/
 test/c_mult
 c/multiply
 c/pairs
 c/hamming
+test_alu
+test_data_memory
+run/obj_dir
