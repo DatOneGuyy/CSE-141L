@@ -4,8 +4,8 @@ cd assembly
 passed1=$(python interpreter.py hamming.asm | grep -c "Passed program 1")
 passed2=$(python interpreter.py pairs.asm | grep -c "Passed program 2")
 passed3=$(python interpreter.py multiply.asm | grep -c "Passed program 3")
-assembler_error=$(python assembler.py combined.asm | grep -c "ERROR")
-assembler_warn=$(python assembler.py combined.asm | grep -c "WARNING")
+assembler_error=$(python assembler.py combined.asm | grep -c -i "ERROR")
+assembler_warn=$(python assembler.py combined.asm | grep -c -i "WARNING")
 
 if [ "$passed1" -eq 1 ]; then
     echo "Passed program 1"
