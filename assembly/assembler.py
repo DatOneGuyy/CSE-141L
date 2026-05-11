@@ -204,7 +204,16 @@ for line in delabeled_data:
                 code += "11"
             code += "000"
         case "pop":
-            code += "100000"
+            code += "1"
+            if tokens[1][1] == "2":
+                code += "00"
+            elif tokens[1][1] == "4":
+                code += "01"
+            elif tokens[1][1] == "5":
+                code += "10"
+            elif tokens[1][1] == "6":
+                code += "11"
+            code += "000"
         case "return":
             code += "000000"
         case "imm":
