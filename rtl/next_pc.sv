@@ -41,9 +41,10 @@ always_comb begin
     for (int i = 0; i < 9; i++) begin
         if (one_hot_code[i]) begin
             if (pc_write_en) begin
-                if ((i < 8) & extended_flags[i]) begin
-                    new_pc = jump_address;
-                end else if (i == 8) begin
+                if (i < 8) begin
+                    if (extended_flags[i]) new_pc = jump_address;
+                end 
+                else if (i == 8) begin
                     new_pc = top_address;
                 end
             end

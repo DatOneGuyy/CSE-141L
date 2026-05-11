@@ -1,8 +1,11 @@
+import types::*;
+
 module stack_controller (
     input logic clk,
 
     //from top-level module
     input logic start,
+    input logic [9:0] pc,
 
     //from decoder
     input logic op_type,
@@ -17,20 +20,15 @@ module stack_controller (
 
     //to register file
     output logic [2:0] read1_src,
-    output logic [2:0] read2_src
+    output logic [2:0] read2_src,
     output logic [2:0] write_dest,
     output logic reg_write_en,
 
     //to top-level module
-    output logic stack_override
+    output logic stack_override,
+    output logic [9:0] new_pc,
+    output states new_state
 );
-
-typedef enum {
-    idle,
-    push_67, push_45, push_5, push_23,
-    restore_7, restore_6, restore_5, restore_4, restore_3,
-    pop_6, pop_5, pop_4, pop_2
-} stack_state;
 
 stack_state state;
 
@@ -41,7 +39,22 @@ end
 logic [2:0] field_latch;
 assign mask_out = field_latch[1:0];
 
+/*
+
+cycle 1 | cycle 2 | cycle 3 |
+so => 0   pc <= n
+          s <= ex
+cycle 1 | cycle 2 | cycle 3 |
+so => 0
+npc <= n => combinational logic to pc
+s <= ex
+
+*/
+
 always_ff @(posedge clk) begin
+    new_pc <= pc;
+    new_state <= stack;
+
     unique case (state)
         idle: begin
             if (start) begin
@@ -55,34 +68,51 @@ always_ff @(posedge clk) begin
                     field_latch <= {op_type, stack_mask};
                 end
                 else begin
-                    state <= push_67;
+                    if (stack_mask == 2'b11) begin
+                        state <= push_67;
+                        new_state <= exec;
+                        new_pc <= pc + 10'b1;
+                        stack_override <= 1'b0;
+                    end
+                    else begin
+                        state <= save_67;
+                    end
+
                     field_latch <= {op_type, inst_mask};
                 end
             end
         end
 
-        push_67: begin
-            unique case (field_latch[1:0])
-                2'b11: begin
-                    state <= idle;
-                    stack_override <= 1'b0;
-                end
-                2'b10: state <= push_5;
-                default: state <= push_45;
-            endcase
-        end
-
-        push_45: begin
-            if (field_latch[1:0] == 2'b00) state <= push_23;
-            else begin
-                state <= idle;
+        save_67: begin
+            if (field_latch[1:0] == 2'b10) begin
+                state <= push_5;
+                new_state <= exec;
+                new_pc <= pc + 10'b1;
                 stack_override <= 1'b0;
             end
+            else if (field_latch[1:0] == 2'b01) begin
+                state <= push_45;
+                new_state <= exec;
+                new_pc <= pc + 10'b1;
+                stack_override <= 1'b0;
+            end
+            else begin
+                state <= save_45;
+            end
+        end
+
+        save_45: state <= push_23;
+
+        push_67, push_45, push_5, push_23: begin
+            state <= idle;
         end
 
         restore_7: begin
             if (field_latch[1:0] == 2'b11) begin
                 state <= pop_6;
+                new_state <= exec;
+                new_pc <= pc + 10'b1;
+                stack_override <= 1'b0;
             end
             else begin
                 state <= restore_6;
@@ -92,6 +122,9 @@ always_ff @(posedge clk) begin
         restore_6: begin
             if (field_latch[1:0] == 2'b10) begin
                 state <= pop_5;
+                new_state <= exec;
+                new_pc <= pc + 10'b1;
+                stack_override <= 1'b0;
             end
             else begin
                 state <= restore_5;
@@ -101,6 +134,9 @@ always_ff @(posedge clk) begin
         restore_5: begin
             if (field_latch[1:0] == 2'b01) begin
                 state <= pop_4;
+                new_state <= exec;
+                new_pc <= pc + 10'b1;
+                stack_override <= 1'b0;
             end
             else begin
                 state <= restore_4;
@@ -108,7 +144,12 @@ always_ff @(posedge clk) begin
         end
 
         restore_4: state <= restore_3;
-        restore_3: state <= pop_2;
+        restore_3: begin
+            state <= pop_2;
+            new_state <= exec;
+            new_pc <= pc + 10'b1;
+            stack_override <= 1'b0;
+        end
         
         //covers push_5, push_23, pop_6, pop_5, pop_4, and pop_2
         default: begin
@@ -121,8 +162,8 @@ end
 //set stack opcodes
 always_comb begin
     unique case (state)
-        push_67: stack_opcode = 4'b0000;
-        push_45: stack_opcode = 4'b0001;
+        push_67, save_67: stack_opcode = 4'b0000;
+        push_45, save_45: stack_opcode = 4'b0001;
         push_5:  stack_opcode = 4'b0010;
         push_23: stack_opcode = 4'b0011;
 
@@ -149,11 +190,11 @@ always_comb begin
     reg_write_en = 1'b0;
 
     unique case (state)
-        push_67: begin
+        push_67, save_67: begin
             read1_src = 3'b110;
             read2_src = 3'b111;
         end
-        push_45: begin
+        push_45, save_45: begin
             read1_src = 3'b100;
             read2_src = 3'b101;
         end
