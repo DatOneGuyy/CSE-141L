@@ -17,85 +17,105 @@ next_pc dut (
     .new_pc(new_pc)
 );
 
+task test_branch(input string test_name, input int flag_idx, input logic [17:0] target_cmd);
+    begin
+        $display("--- Testing %s ---", test_name);
+        jump_target = target_cmd;
+        
+        // 1. Test FALSE Condition (Flag is 0)
+        flags = 7'b0;
+        #10;
+        if (new_pc === (current_pc + 10'b1))
+            $display("PASS: %s (False) correctly fell through to PC+1: %3h", test_name, new_pc);
+        else
+            $error("FAIL: %s (False). Expected %3h, got %3h", test_name, (current_pc + 1), new_pc);
+        
+        // 2. Test TRUE Condition (Flag is 1)
+        flags = (7'b1 << flag_idx);
+        #10;
+        // Expected target: 10'h2AA (Jump Address)
+        if (new_pc === 10'h2AA)
+            $display("PASS: %s (True) correctly jumped to target: %3h", test_name, new_pc);
+        else
+            $error("FAIL: %s (True). Expected 2AA, got %3h", test_name, new_pc);
+            
+        $display("");
+    end
+endtask
+
 initial begin
-    $dumpfile("next_pc_dump.vcd");
+    // Output configuration specified by requirements
+    $dumpfile("../dump/next_pc_dump.vcd");
     $dumpvars(0, tb_next_pc);
 
-    //initialize
-    current_pc  = 10'd100;
-    flags       = 7'b0;
-    jump_target = 18'b0;
-    top_address = 10'h3FF;
-    pc_write_en = 1'b0;
+    $display("starting next_pc validation");
 
-    #10;
-    $display("--- Starting next_pc Tests ---");
-
-    // ---------------------------------------------------------
-    // Test 1: Standard PC Increment (pc_write_en = 0)
-    // Expected: new_pc = current_pc + 1 (101)
-    // ---------------------------------------------------------
-    pc_write_en = 1'b0;
-    #10;
-    $display("T1 - Standard Increment: current_pc=%d, new_pc=%d (Expected: 101)", current_pc, new_pc);
-
-    // ---------------------------------------------------------
-    // Test 2: Unconditional Jump
-    // Expected: new_pc = jump_address (0x0AA)
-    // ---------------------------------------------------------
-    // one_hot_code[7] maps to jump_target[15]. extended_flags[7] is hardcoded to 1'b1.
-    // jump_address maps to {jump_target[8:0], jump_target[17]}
-    pc_write_en = 1'b1;
-    jump_target = 18'b0;
-    jump_target[15] = 1'b1;   // Trigger one_hot_code[7]
-    jump_target[8:0] = 9'h055; 
-    jump_target[17]  = 1'b0;  // jump_address = {9'h055, 1'b0} = 10'h0AA (170)
-    #10;
-    $display("T2 - Unconditional Jump: new_pc=%d (Expected: 170)", new_pc);
-
-    // ---------------------------------------------------------
-    // Test 3: Conditional Branch (Less Than Unsigned - ltu)
-    // Expected: new_pc = jump_address (0x0CC)
-    // ---------------------------------------------------------
-    // ltu is jump_target[11] & ~jump_target[9]. It maps to one_hot_code[3].
-    // This requires extended_flags[3] (flags[3]) to be 1.
-    jump_target = 18'b0;
-    jump_target[11] = 1'b1;
-    jump_target[9]  = 1'b0;
-    jump_target[8:0] = 9'h066;
-    jump_target[17]  = 1'b0;  // jump_address = {9'h066, 1'b0} = 10'h0CC (204)
+    // Initialize default state
+    current_pc = 10'h100;
+    flags = 7'b0;
+    top_address = 10'h0FA; // Example stack return address
     
-    flags[3] = 1'b1;          // Set the required flag condition
-    #10;
-    $display("T3 - Conditional Branch (ltu=1, flag=1): new_pc=%d (Expected: 204)", new_pc);
+    // Construct standard jump_address: 10'h2AA (10_1010_1010)
+    // jump_address = {jump_target[8:0], jump_target[17]}
+    // jump_target[17] = 0
+    // jump_target[8:0] = 9'h155 (1_0101_0101)
+    // Base payload = 18'h00155
 
-    // ---------------------------------------------------------
-    // Test 4: Conditional Branch Failed (Condition not met)
-    // Expected: new_pc = current_pc + 1 (101)
-    // ---------------------------------------------------------
-    flags[3] = 1'b0;          // Clear the flag
-    #10;
-    $display("T4 - Conditional Branch (ltu=1, flag=0): new_pc=%d (Expected: 101)", new_pc);
-
-    // ---------------------------------------------------------
-    // Test 5: Stack Return / Pop
-    // Expected: new_pc = top_address (1023 / 0x3FF)
-    // ---------------------------------------------------------
-    // one_hot_code[8] maps to jump_target[16]
-    jump_target = 18'b0;
-    jump_target[16] = 1'b1;
-    #10;
-    $display("T5 - Stack Return: new_pc=%d (Expected: 1023)", new_pc);
-
-    // ---------------------------------------------------------
-    // Test 6: pc_write_en override
-    // Expected: new_pc = current_pc + 1 (101) despite jump_target calling for return
-    // ---------------------------------------------------------
+    // Disabled write
     pc_write_en = 1'b0;
+    jump_target = 18'h08155; // Unconditional jump command
     #10;
-    $display("T6 - pc_write_en=0 with branch pending: new_pc=%d (Expected: 101)", new_pc);
+    $display("--- Testing PC Write Disable ---");
+    if (new_pc === 10'h101) $display("PASS: new_pc incremented normally while disabled.");
+    else $error("FAIL: Jump executed while pc_write_en was 0.");
+    $display("");
 
-    $display("--- Tests Complete ---");
+    // Enable pc writing for the remaining tests
+    pc_write_en = 1'b1;
+
+    // Return
+    // Set bit 16 for top_address mapping
+    jump_target = 18'h00155 | (1 << 16); 
+    #10;
+    $display("--- Testing Return / Pop ---");
+    if (new_pc === top_address) $display("PASS: Returned to top_address successfully: %3h", new_pc);
+    else $error("FAIL: Did not return to top_address.");
+    $display("");
+
+    // Unconditional
+    // Set bit 15. Maps to extended_flags[7] which is always 1.
+    jump_target = 18'h00155 | (1 << 15); 
+    #10;
+    $display("--- Testing Unconditional Jump ---");
+    if (new_pc === 10'h2AA) $display("PASS: Unconditional Jump executed successfully: %3h", new_pc);
+    else $error("FAIL: Unconditional jump missed.");
+    $display("");
+
+    // Index 0: gts -> jump_target[10]=1, [9]=1
+    test_branch("gts (Idx 0)", 0, (18'h00155 | (1<<10) | (1<<9)));
+    
+    // Index 1: lts -> jump_target[11]=1, [9]=1
+    test_branch("lts (Idx 1)", 1, (18'h00155 | (1<<11) | (1<<9)));
+    
+    // Index 2: gtu -> jump_target[10]=1, [9]=0
+    test_branch("gtu (Idx 2)", 2, (18'h00155 | (1<<10)));
+    
+    // Index 3: ltu -> jump_target[11]=1, [9]=0
+    test_branch("ltu (Idx 3)", 3, (18'h00155 | (1<<11)));
+
+    // Index 4: jump_target[12]
+    test_branch("Flag 4", 4, (18'h00155 | (1<<12)));
+
+    // Index 5: jump_target[13]
+    test_branch("Flag 5", 5, (18'h00155 | (1<<13)));
+
+    // Index 6: jump_target[14]
+    test_branch("Flag 6", 6, (18'h00155 | (1<<14)));
+
+    $display("============================================");
+    $display("   next_pc Module Validation Suite Finish   ");
+    $display("============================================");
+
     $finish;
 end
 

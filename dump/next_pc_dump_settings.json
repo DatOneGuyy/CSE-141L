@@ -5,7 +5,7 @@
   "altMarkerTime": null,
   "displayTimeUnit": "ps",
   "selectedSignal": null,
-  "zoomRatio": 6.490559387207031,
+  "zoomRatio": 6.059316677517361,
   "scrollLeft": 0,
   "displayedSignals": [
     {
@@ -21,7 +21,7 @@
       "colorIndex": 0,
       "rowHeight": 1,
       "verticalScale": 1,
-      "nameType": "fullPath",
+      "nameType": "signalName",
       "customName": "current_pc",
       "renderType": "multiBit",
       "valueLinkCommand": ""
@@ -30,11 +30,11 @@
       "dataType": "netlist-variable",
       "netlistId": 1,
       "name": "next_pc_tb.flags",
-      "numberFormat": "binary",
-      "colorIndex": 0,
+      "numberFormat": "hexadecimal",
+      "colorIndex": 1,
       "rowHeight": 1,
       "verticalScale": 1,
-      "nameType": "fullPath",
+      "nameType": "signalName",
       "customName": "flags",
       "renderType": "multiBit",
       "valueLinkCommand": ""
@@ -44,10 +44,10 @@
       "netlistId": 2,
       "name": "next_pc_tb.jump_target",
       "numberFormat": "hexadecimal",
-      "colorIndex": 0,
+      "colorIndex": 1,
       "rowHeight": 1,
       "verticalScale": 1,
-      "nameType": "fullPath",
+      "nameType": "signalName",
       "customName": "jump_target",
       "renderType": "multiBit",
       "valueLinkCommand": ""
@@ -57,10 +57,10 @@
       "netlistId": 4,
       "name": "next_pc_tb.pc_write_en",
       "numberFormat": "binary",
-      "colorIndex": 0,
+      "colorIndex": 1,
       "rowHeight": 1,
       "verticalScale": 1,
-      "nameType": "fullPath",
+      "nameType": "signalName",
       "customName": "pc_write_en",
       "renderType": "binary",
       "valueLinkCommand": ""
@@ -73,7 +73,7 @@
       "colorIndex": 0,
       "rowHeight": 1,
       "verticalScale": 1,
-      "nameType": "fullPath",
+      "nameType": "signalName",
       "customName": "top_address",
       "renderType": "multiBit",
       "valueLinkCommand": ""
@@ -96,7 +96,7 @@
       "colorIndex": 0,
       "rowHeight": 1,
       "verticalScale": 1,
-      "nameType": "fullPath",
+      "nameType": "signalName",
       "customName": "new_pc",
       "renderType": "multiBit",
       "valueLinkCommand": ""

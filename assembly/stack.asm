@@ -15,7 +15,7 @@
     imm r6 1
     imm r7 1
 
-    pop r4+
+    pop
 
     imm r4 2
     imm r5 2

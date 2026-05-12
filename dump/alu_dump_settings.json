@@ -1,11 +1,15 @@
 {
   "extensionVersion": "1.5.2",
   "fileName": "e:\\CSE-141L\\dump\\alu_dump.vcd",
-  "markerTime": 1,
+  "markerTime": 12,
   "altMarkerTime": null,
   "displayTimeUnit": "ps",
-  "selectedSignal": null,
-  "zoomRatio": 46.523809523809526,
+  "selectedSignal": {
+    "name": "alu_tb.dut.write_flags_en",
+    "msb": -1,
+    "lsb": -1
+  },
+  "zoomRatio": 53.841761997767854,
   "scrollLeft": 0,
   "displayedSignals": [
     {

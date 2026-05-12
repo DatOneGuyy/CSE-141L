@@ -39,7 +39,7 @@
 
             push r4+
             call #calculate-distance
-            pop r4+
+            pop
 
             //if min < dist don't store dist
             cmp r6 r0
@@ -111,7 +111,7 @@ halt
 
     push r6+
     call #merge-sort
-    pop r6+
+    pop
     
     //calculate difference between highest/lowest
     imm r0 4
@@ -138,7 +138,7 @@ halt
 
     push r2+
     call #subtract
-    pop r2+
+    pop
 
     //move r0 to r2
     copy r2
@@ -192,9 +192,9 @@ halt
         //subtraction call
         push r2+
         call #subtract
-        pop r2+
+        pop
 
-        pop r4+ //pass up new difference
+        pop //pass up new difference
 
         //compare current difference with minimum difference
         
@@ -282,21 +282,21 @@ halt
         copy r1 r6 //copy size
         push r6+   //keep return values in r0/r1
         call #merge-sort
-        pop r6+
+        pop
 
         //setup right recursive call
         add r6 r7  // calculate right start index
         copy r1 r6 // restore the split size to r1
         push r6+   
         call #merge-sort
-        pop r6+
+        pop
 
         //setup merge function call
         copy r0 r7 // restore left start index
         copy r1 r6 // restore the split size to r1
         push r4+
         call #merge
-        pop r4+
+        pop
 
     #merge-sort-return
     return //last #merge call already placed correct index in r0 and size in r1 for return
@@ -342,7 +342,7 @@ halt
         copy r2
         load r2
 
-        pop r2+    //restore registers
+        pop    //restore registers
 
         //compare MSBs
         //start with sign comparison
@@ -357,7 +357,7 @@ halt
         jumpgts #smaller-right-msb
 
             //MSBs are equal so load the LSBs
-            pop r6+
+            pop
             push r2+
 
             //load lower right into r1
@@ -371,7 +371,7 @@ halt
             copy r2
             load r2 1
 
-            pop r2+
+            pop
 
         //compare LSBs in r0 and r1
         //if r0 < r1, left is smaller
@@ -419,7 +419,7 @@ halt
         copy r0 r6
         store r5 
 
-        pop r6+
+        pop
 
     imm r0 2
 
@@ -451,7 +451,7 @@ halt
         copy r0 r6
         store r5 
 
-        pop r6+
+        pop
 
     imm r0 2
 
@@ -498,7 +498,7 @@ halt
     cmp r7 r6
     jumplt #copy-back-loop
 
-    pop r2+
+    pop
 
     lshift r6 1
     copy r1    //new array size in r1
@@ -510,7 +510,7 @@ halt
 #smaller-left-msb
     //pass up upper left
     copy r1 r6
-    pop r6+ //pop frame pushed at the start of loop body
+    pop //pop frame pushed at the start of loop body
 
     push r2+
 
@@ -522,7 +522,7 @@ halt
 
     //pass up write position
     copy r1 r5
-    pop r2+
+    pop
 
     //load lower byte
     add r2 r7 //left index + left array start
@@ -540,7 +540,7 @@ halt
 #smaller-right-msb
     //pass up upper right
     copy r1 r7
-    pop r6+
+    pop
 
     push r2+
 
@@ -550,7 +550,7 @@ halt
 
     //pass up write position
     copy r1 r5
-    pop r2+
+    pop
 
     //load lower byte
     add r3 r4 //right index + right array start
@@ -578,7 +578,7 @@ halt
 
     //pass up write position
     copy r1 r5
-    pop r2+
+    pop
 
     //load upper byte
     add r2 r7 //left index + left array start
@@ -605,7 +605,7 @@ halt
 
     //pass up write position
     copy r1 r5
-    pop r2+
+    pop
 
     //load upper byte
     add r3 r4 //right index + right array start
@@ -714,7 +714,7 @@ halt
         //call multiplication
         push r5+
         call #multiply-32
-        pop r5+
+        pop
 
         copy r0 r5
         jumpz #positive-result //skip negation step if result is positive
@@ -751,7 +751,7 @@ halt
 
         #positive-result
 
-        pop r4+ //restore r4-7
+        pop //restore r4-7
 
         //store result
         load r6 3
