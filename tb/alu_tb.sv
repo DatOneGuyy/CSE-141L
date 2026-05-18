@@ -10,7 +10,6 @@ logic [7:0] alu_out;
 logic [4:0] alu_flags;
 logic write_flags_en;
 
-// Instantiate alu
 alu dut (
     .opcode(opcode),
     .funct(funct),

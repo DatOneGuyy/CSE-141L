@@ -1,10 +1,8 @@
 import argparse
 import time
 
-start = time.perf_counter()
-
 parser = argparse.ArgumentParser(description="Assembler")
-parser.add_argument("name", help="File to read")
+parser.add_argument("input", help="File to read")
 parser.add_argument("-o", "--output", help="Output file to write binary to", default="out")
 parser.add_argument("-b", "--bin", action="store_true", help="Format output as a binary")
 
@@ -16,7 +14,7 @@ if args.bin:
 else:
     print("[INFO] Assembling into memory initialization file")
 
-file = open(args.name, "r")
+file = open(args.input, "r")
 print("[INFO] Found assembly file.")
 
 opcodes = {}
@@ -92,7 +90,7 @@ delabeled_data = []
 for line in data:
     if line[0] == "#":
         if line in mapping.keys():
-            print(f"[ERROR] Duplicate label definintion detected at pc value {pc} at line {line}.")
+            print(f"[ERROR] Duplicate label definition detected at pc value {pc} at line {line}.")
             exit()
         #print(f"Identified label {line} at pc value {pc}")
         mapping[line] = (label_count, pc)
@@ -168,10 +166,11 @@ for entry in mapping:
             label_memory[mapping[entry][0]] += "00000101"
         case "jumpgts":
             label_memory[mapping[entry][0]] += "00000011"
+
 #for entry in label_memory:
     #print(entry)
-for m in mapping:
-    print(f"{m}: {mapping[m]}")
+#for m in mapping:
+    #print(f"{m}: {mapping[m]}")
 print("[INFO] Filled label memory.")
 
 instructions = []
@@ -267,8 +266,11 @@ for line in delabeled_data:
         case _:
             print(f"[ERROR] Invalid instruction at {line}.")
             exit()
-    
-    instructions.append(code)
+
+    if (not args.bin):
+        instructions.append(f"{code}; % {line} %")
+    else:
+        instructions.append(code)
     if len(code) != 9:
         print(f"[ERROR] Instruction length error on line {line}.")
         print(f"[ERROR] Instruction: {code}.")
@@ -304,7 +306,7 @@ else:
 
     file.write("\n% Beginning of instruction memory %\n\n")
     for i in range(len(instructions)):
-        file.write(f"{i:4d}        : {instructions[i]};\n")
+        file.write(f"{i:4d}        : {instructions[i]}\n")
     file.write(f"[{len(instructions)}..895]  : 000000000;\n")
     file.write("\n% Beginning of label memory %\n\n")
 
@@ -325,6 +327,3 @@ else:
     file.write("\nEND;")
     print(f"[INFO] Saved machine code to {args.output}.mif.")
     file.close()
-
-end = time.perf_counter()
-print(f"[INFO] Assembling time: {(end - start) * 1000:.3f} ms.")
