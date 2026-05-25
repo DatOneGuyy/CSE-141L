@@ -15,6 +15,8 @@ logic [5:0] label_address;
 logic [8:0] instruction;
 logic [17:0] jump_target;
 instruction_memory instruction_memory_inst(
+    .clk(clk),
+    
     .pc(pc),
     
     .label_address(label_address),
@@ -161,7 +163,6 @@ logic [2:0] read2_src_stack;
 logic [2:0] write_dest_stack;
 logic reg_write_en_stack;
 
-logic stack_override;
 logic [9:0] new_pc_stack;
 types::states new_state;
 stack_controller stack_controller_inst(
@@ -177,7 +178,6 @@ stack_controller stack_controller_inst(
     .read2_src(read2_src_stack),
     .write_dest(write_dest_stack),
     .reg_write_en(reg_write_en_stack),
-    .stack_override(stack_override),
     .new_pc(new_pc_stack),
     .new_state(new_state)
 );
@@ -220,6 +220,7 @@ initial begin
     current_state = halted;
 end
 
+int counter = 0;
 always_ff @(posedge clk) begin
     //$display("pc: %d, inst: %b, npc: %d", pc, instruction, new_pc);
     unique case (current_state)
@@ -233,11 +234,13 @@ always_ff @(posedge clk) begin
             else begin
                 pc <= new_pc;
             end
+            counter <= counter + 32'b1;
         end
 
         stack: begin
             pc <= new_pc_stack;
             current_state <= new_state;
+            counter <= counter + 32'b1;
         end
 
         halted: begin

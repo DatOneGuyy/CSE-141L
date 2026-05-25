@@ -86,7 +86,8 @@ always_comb begin
         4'b0101, 4'b1100: restore = stack[pointer].r6;
         4'b0110, 4'b1101: restore = stack[pointer].r5;
         4'b0111, 4'b1110: restore = stack[pointer].r4;
-        4'b1000, 4'b1111: restore = stack[pointer].r3;
+        4'b1000: restore = stack[pointer].r3;
+        4'b1111: restore = stack[pointer].r2; 
         default: restore = 8'b0;
     endcase
 end
