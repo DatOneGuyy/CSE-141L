@@ -240,7 +240,10 @@ always_ff @(posedge clk) begin
         end
 
         halted: begin
-            if (start) current_state <= exec;
+            if (start) begin
+                current_state <= exec;
+                pc <= 10'b0;
+            end
         end
 
         default: current_state <= halted;
