@@ -39,7 +39,7 @@ assign opcode = instruction[8:6];
 assign funct = instruction[2:0];
 assign imm = instruction[2:0];
 
-assign mem_write_en = &(instruction[8:6]);
+assign mem_write_en = &(instruction[8:6]) & ~instruction[2];
 
 assign pc_write_en = (instruction[8:6] == 3'b001);
 
