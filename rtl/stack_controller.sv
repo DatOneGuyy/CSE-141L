@@ -101,7 +101,12 @@ always_ff @(posedge clk) begin
             end
         end
 
-        save_45: state <= push_23;
+        save_45: begin
+            state <= push_23;
+            new_state <= exec;
+            new_pc <= pc + 10'b1;
+            stack_override <= 1'b0;
+        end
 
         push_67, push_45, push_5, push_23: begin
             state <= idle;

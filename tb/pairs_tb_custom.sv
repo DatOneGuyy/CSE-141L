@@ -49,14 +49,14 @@ initial begin
         advance_clk();
 
         if (debug_pause) begin
-            //$display("top-level inspection: is_stack_op: %b, current_state: %d, new_state: %d, register_write_data: %d, mem_write_en: %b, mem_out: %d, alu_out: %d", dut.is_stack_op, dut.current_state, dut.new_state, dut.register_write_data, dut.mem_write_en, dut.mem_out, dut.alu_out);
-            //$display("controller inspection: start_stack: %b, opcode: %b, mask: %b, op_type: %b, stack_state: %d", dut.start_stack, dut.stack_opcode, dut.stack_controller_mask, dut.stack_controller_inst.op_type, dut.stack_controller_inst.state);
-            //$display("stack inspection: [r1, r2]: [%d, %d], empty: %b", dut.stack_inst.r1, dut.stack_inst.r2, dut.stack_inst.empty);
+            $display("top-level inspection: is_stack_op: %b, current_state: %d, new_state: %d, register_write_data: %d, mem_write_en: %b, mem_out: %d, alu_out: %d", dut.is_stack_op, dut.current_state, dut.new_state, dut.register_write_data, dut.mem_write_en, dut.mem_out, dut.alu_out);
+            $display("controller inspection: start_stack: %b, opcode: %b, mask: %b, op_type: %b, stack_state: %d", dut.start_stack, dut.stack_opcode, dut.stack_controller_mask, dut.stack_controller_inst.op_type, dut.stack_controller_inst.state);
+            $display("stack inspection: [r1, r2]: [%d, %d], empty: %b", dut.stack_inst.r1, dut.stack_inst.r2, dut.stack_inst.empty);
         end
 
         $display("Instruction number: %d", count++);
-        //display_info();
-        //display_stack();
+        display_info();
+        display_stack();
         $display();
 
         if (done) begin

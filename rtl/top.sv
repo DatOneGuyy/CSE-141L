@@ -1,6 +1,6 @@
 import types::*;
 
-module top (
+module DUT (
     input logic clk,
     input logic start,
 
@@ -119,7 +119,7 @@ alu alu_inst(
 
 //data memory signals
 logic [7:0] mem_out;
-data_memory data_memory_inst(
+data_memory dm(
     .clk(clk),
     .address(alu_out),
     .data_in(read2_result),
@@ -221,6 +221,7 @@ initial begin
 end
 
 always_ff @(posedge clk) begin
+    //$display("pc: %d, inst: %b, npc: %d", pc, instruction, new_pc);
     unique case (current_state)
         exec: begin
             if (instruction == 9'b011000111) begin
@@ -240,7 +241,7 @@ always_ff @(posedge clk) begin
         end
 
         halted: begin
-            if (start) begin
+            if (~start) begin
                 current_state <= exec;
                 pc <= 10'b0;
             end

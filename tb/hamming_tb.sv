@@ -2,21 +2,18 @@
 module test_bench;
 
 // connections to DUT: clock, start (request), done (acknowledge) 
-bit clk, start = 'b1;
-wire done;
+  bit  clk,
+       start = 'b1;
+  wire done;
 
-logic[ 4:0] Dist, Min, Max;	// current, min, max Hamming distances
-logic[ 4:0] Min1, Min2;	 	// addresses of pair w/ smallest Hamming distance
-logic[ 4:0] Max1, Max2;		// addresses of pair w/ largest Hamming distance
-logic[15:0] Tmp[32];		    // cache of 16-bit values assembled from data_mem
+  logic[ 4:0] Dist, Min, Max;	// current, min, max Hamming distances
+  logic[ 4:0] Min1, Min2;	 	// addresses of pair w/ smallest Hamming distance
+  logic[ 4:0] Max1, Max2;		// addresses of pair w/ largest Hamming distance
+  logic[15:0] Tmp[32];		    // cache of 16-bit values assembled from data_mem
 
-top D1 (.clk  (clk  ),	        // your design goes here
-        .start(start),
-        .done (done )); 
-
-initial begin
-    $readmemb("../rtl/programs/hamming.bin", D1.instruction_memory_inst.mem);
-end
+  DUT D1(.clk  (clk  ),	        // your design goes here
+		 .start(start),
+		 .done (done )); 
 
 always begin
   #50ns clk = 'b1;
@@ -33,43 +30,44 @@ initial begin
 // 32 double-precision operands go into data_mem [0:63]
 // first operand = {data_mem[0],data_mem[1]}  
 //   endian order doesn't matter for program 1, as long as consistent for all values (why?)
+    $readmemb("../rtl/programs/hamming.bin", D1.instruction_memory_inst.mem);
   for(int loop_ct=0; loop_ct<itrs; loop_ct++) begin
     #100ns;
 	Min = 'd16;						         // start test bench Min at max value
 	Max = 'd0;						         // start test bench Max at min value
     case(loop_ct)
-        0: $readmemb("../test_files/test0.txt",D1.data_memory_inst.core);
-	    1: $readmemb("../test_files/test1.txt",D1.data_memory_inst.core);
-        2: $readmemb("../test_files/test2.txt",D1.data_memory_inst.core);
-	    3: $readmemb("../test_files/test3.txt",D1.data_memory_inst.core);
-        4: $readmemb("../test_files/test4.txt",D1.data_memory_inst.core);
-        5: $readmemb("../test_files/test5.txt",D1.data_memory_inst.core);
-        6: $readmemb("../test_files/test6.txt",D1.data_memory_inst.core);
-	    7: $readmemb("../test_files/test7.txt",D1.data_memory_inst.core);
-        8: $readmemb("../test_files/test8.txt",D1.data_memory_inst.core);
-        9: $readmemb("../test_files/test9.txt",D1.data_memory_inst.core);
+        0: $readmemb("../test_files/test0.txt",D1.dm.core);
+	    1: $readmemb("../test_files/test1.txt",D1.dm.core);
+        2: $readmemb("../test_files/test2.txt",D1.dm.core);
+	    3: $readmemb("../test_files/test3.txt",D1.dm.core);
+        4: $readmemb("../test_files/test4.txt",D1.dm.core);
+        5: $readmemb("../test_files/test5.txt",D1.dm.core);
+        6: $readmemb("../test_files/test6.txt",D1.dm.core);
+	    7: $readmemb("../test_files/test7.txt",D1.dm.core);
+        8: $readmemb("../test_files/test8.txt",D1.dm.core);
+        9: $readmemb("../test_files/test9.txt",D1.dm.core);
     endcase
     for(int i=0; i<32; i++) begin
-      Tmp[i] = {D1.data_memory_inst.core[2*i],D1.data_memory_inst.core[2*i+1]};
+      Tmp[i] = {D1.dm.core[2*i],D1.dm.core[2*i+1]};
       $display("%d:  %b",i,Tmp[i]);
 	end
 // DUT data memory preloads beyond [63] (next 3 lines of code)
-    D1.data_memory_inst.core[64] = 'd16;		             // preset DUT final Min to max possible
+    D1.dm.core[64] = 'd16;		             // preset DUT final Min to max possible
     for(int r=65; r<256; r++)
-	  D1.data_memory_inst.core[r] = 'd0;		             // preset DUT final Max to min possible 
+	  D1.dm.core[r] = 'd0;		             // preset DUT final Max to min possible 
 // 	compute correct answers
     for(int j=0; j<32; j++) begin
       for(int k=j+1; k<32; k++) begin
 	    #1ns Dist = ham(Tmp[j],Tmp[k]);
         if(Dist<Min) begin                   // update Hamming minimum
           Min = Dist;						 //   value
-		  Min2 = j[4:0];							 //	  location of data pair
-		  Min1 = k[4:0];							 //         "
+		  Min2 = j;							 //	  location of data pair
+		  Min1 = k;							 //         "
 		end  
 		if(Dist>Max) begin 			         // update Hamming maximum
 		  Max = Dist;						 //   value
-		  Max2 = j[4:0];							 //   location of data pair
-		  Max1 = k[4:0];							 //			"
+		  Max2 = j;							 //   location of data pair
+		  Max1 = k;							 //			"
         end
 	  end
     end   
@@ -77,23 +75,23 @@ initial begin
   #200ns wait (done);						 // avoid false done signals on startup
 
 // check results in data_mem[64] and [65] (Minimum and Maximum distances, respectively)
-    if({3'b0, Min} == D1.data_memory_inst.core[64]) begin
+    if(Min == D1.dm.core[64]) begin
       $display("good Min = %d",Min);
       min_pass++;
     end
 	else begin
-      $display("fail Min: Correct = %d; Yours = %d",Min,D1.data_memory_inst.core[64]);
+      $display("fail Min: Correct = %d; Yours = %d",Min,D1.dm.core[64]);
       $display("Min addr = %d, %d",Min1, Min2);
-      $display("Min valu = %b, %b",Tmp[Min1],Tmp[Min2]);//{D1.data_memory_inst.core[2*Min1],D1.data_memory_inst.core[2*Min1+1]},{D1.data_memory_inst.core[2*Min2],D1.data_memory_inst.core[2*Min2+1]});
+      $display("Min valu = %b, %b",Tmp[Min1],Tmp[Min2]);//{D1.dm.core[2*Min1],D1.dm.core[2*Min1+1]},{D1.dm.core[2*Min2],D1.dm.core[2*Min2+1]});
     end
-	if({3'b0, Max} == D1.data_memory_inst.core[65]) begin
+	if(Max == D1.dm.core[65]) begin
       $display("good Max = %d",Max);
       max_pass++;
 	end
 	else  begin
-      $display("MAD  Max: Correct = %d; Yours = %d",Max,D1.data_memory_inst.core[65]);
+      $display("MAD  Max: Correct = %d; Yours = %d",Max,D1.dm.core[65]);
       $display("Max pair = %d, %d",Max1, Max2);
-      $display("Max valu = %b, %b",Tmp[Max1],Tmp[Max2]);// {D1.data_memory_inst.core[2*Max1],D1.data_memory_inst.core[2*Max1+1]},{D1.data_memory_inst.core[2*Max2],D1.data_memory_inst.core[2*Max2+1]});
+      $display("Max valu = %b, %b",Tmp[Max1],Tmp[Max2]);// {D1.dm.core[2*Max1],D1.dm.core[2*Max1+1]},{D1.dm.core[2*Max2],D1.dm.core[2*Max2+1]});
     end
     #200ns start = 'b1;
 	if(loop_ct==itrs-1) begin
