@@ -21,10 +21,6 @@ logic unsigned [7:0] r1_u = r1;
 logic unsigned [7:0] r2_u = r2;
 
 always_comb begin
-    alu_flags = 5'b0;
-    alu_out = 8'b0;
-    write_flags_en = 1'b0;
-
     unique case (opcode)
         3'b110: begin
             {alu_flags[4], alu_out} = r1 + r2;
@@ -84,7 +80,9 @@ always_comb begin
             endcase
         end
         default: begin
-            //
+            alu_flags = 5'b0;
+            alu_out = 8'b0;
+            write_flags_en = 1'b0;
         end
     endcase
 end

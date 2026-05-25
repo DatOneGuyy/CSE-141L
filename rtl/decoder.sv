@@ -27,7 +27,10 @@ module decoder (
     output logic [1:0] stack_controller_mask,
 
     //to register write MUX
-    output logic [1:0] write_src
+    output logic [1:0] write_src,
+
+    //to register control MUX
+    output logic is_stack_op
 );
 
 assign label_address = instruction[5:0];
@@ -42,14 +45,17 @@ assign pc_write_en = (instruction[8:6] == 3'b001);
 
 assign read1_src = instruction[5:3];
 assign read2_src = ((instruction[8] & ~instruction[6]) | (instruction[8:6] == 3'b010)) ? instruction[2:0] : 3'b0; //only read 2nd register for add/cmp/copy
-assign write_dest = (instruction[8] ~| instruction[6]) ? instruction[5:3] : 3'b0; //only write to other registers for imm/copy
+assign write_dest = (~|{instruction[8], instruction[6]}) ? instruction[5:3] : 3'b0; //only write to other registers for imm/copy
 
-logic is_cmp = (instruction[8:6] == 3'b100);
-logic is_push = ~|{instruction[8:5], instruction[2:0]};
-logic is_pop = ~|{instruction[8:6], instruction[2:0]} & instruction[5];
-logic is_load = &instruction[8:6] & instruction[2];
-logic is_store = &instruction[8:6] & ~instruction[2];
-logic is_jump = (instruction[8:6] == 3'b001);
+logic is_cmp, is_push, is_pop, is_load, is_store, is_jump;
+assign is_cmp = (instruction[8:6] == 3'b100);
+assign is_push = (~|{instruction[8:5], instruction[2:0]});
+assign is_pop = (~|{instruction[8:6], instruction[2:0]}) & instruction[5];
+assign is_load = &instruction[8:6] & instruction[2];
+assign is_store = &instruction[8:6] & ~instruction[2];
+assign is_jump = (instruction[8:6] == 3'b001);
+
+assign is_stack_op = is_push | is_pop;
 
 assign reg_write_en = ~|{is_cmp, is_push, is_store, is_jump}; //disable register writing for cmp, push, store, jumps
 

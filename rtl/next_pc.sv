@@ -36,18 +36,22 @@ assign one_hot_code = {jump_target[16:12], ltu, gtu, lts, gts};
 logic [9:0] jump_address;
 assign jump_address = {jump_target[8:0], jump_target[17]};
 
+logic jump_condition;
+logic top_condition;
+
 always_comb begin
-    new_pc = pc_p1;
-    for (int i = 0; i < 9; i++) begin
-        if (one_hot_code[i]) begin
-            if (pc_write_en) begin
-                if ((i < 8) & extended_flags[i]) begin
-                    new_pc = jump_address;
-                end else if (i == 8) begin
-                    new_pc = top_address;
-                end
-            end
-        end
+    jump_condition = pc_write_en & |(one_hot_code[7:0] & extended_flags[7:0]);
+    
+    top_condition  = pc_write_en & one_hot_code[8];
+
+    if (top_condition) begin
+        new_pc = top_address;
+    end 
+    else if (jump_condition) begin
+        new_pc = jump_address;
+    end 
+    else begin
+        new_pc = pc_p1; // Default
     end
 end
 

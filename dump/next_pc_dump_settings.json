@@ -1,0 +1,105 @@
+{
+  "extensionVersion": "1.5.2",
+  "fileName": "e:\\CSE-141L\\dump\\next_pc_dump.vcd",
+  "markerTime": null,
+  "altMarkerTime": null,
+  "displayTimeUnit": "ps",
+  "selectedSignal": null,
+  "zoomRatio": 6.059316677517361,
+  "scrollLeft": 0,
+  "displayedSignals": [
+    {
+      "dataType": "signal-separator",
+      "label": "Inputs",
+      "rowHeight": 1
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 0,
+      "name": "next_pc_tb.current_pc",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "current_pc",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 1,
+      "name": "next_pc_tb.flags",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 1,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "flags",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 2,
+      "name": "next_pc_tb.jump_target",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 1,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "jump_target",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 4,
+      "name": "next_pc_tb.pc_write_en",
+      "numberFormat": "binary",
+      "colorIndex": 1,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "pc_write_en",
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 3,
+      "name": "next_pc_tb.top_address",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "top_address",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "dataType": "signal-separator",
+      "label": "-----------------",
+      "rowHeight": 1
+    },
+    {
+      "dataType": "signal-separator",
+      "label": "Outputs",
+      "rowHeight": 1
+    },
+    {
+      "dataType": "netlist-variable",
+      "netlistId": 5,
+      "name": "next_pc_tb.new_pc",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "rowHeight": 1,
+      "verticalScale": 1,
+      "nameType": "signalName",
+      "customName": "new_pc",
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    }
+  ]
+}

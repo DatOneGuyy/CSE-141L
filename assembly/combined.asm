@@ -342,7 +342,7 @@ halt
         copy r2
         load r2
 
-        pop       //restore registers
+        pop    //restore registers
 
         //compare MSBs
         //start with sign comparison
