@@ -229,17 +229,11 @@ for line in delabeled_data:
         case "lshift":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
             code += "0"
-            if tokens[2] == "4":
-                code += "00"
-            else:
-                code += pad_zeroes(bin(int(tokens[2]) - 1)[2:], 2)
+            code += pad_zeroes(bin(int(tokens[2]) - 1)[2:], 2)
         case "rshift":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
             code += "1"
-            if tokens[2] == "4":
-                code += "00"
-            else:
-                code += pad_zeroes(bin(int(tokens[2]) - 1)[2:], 2)
+            code += pad_zeroes(bin(int(tokens[2]) - 1)[2:], 2)
         case "popcnt":
             code += pad_zeroes(bin(int(tokens[1][1]))[2:], 3)
             code += "000"
