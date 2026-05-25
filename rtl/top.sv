@@ -15,8 +15,6 @@ logic [5:0] label_address;
 logic [8:0] instruction;
 logic [17:0] jump_target;
 instruction_memory instruction_memory_inst(
-    .clk(clk),
-    
     .pc(pc),
     
     .label_address(label_address),

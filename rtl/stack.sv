@@ -24,12 +24,12 @@ module stack (
     output logic [1:0] top_mask
 );
 
-types::stack_frame stack [0:7];
+types::stack_frame stack [0:15];
 
-logic empty;
-logic [2:0] pointer;
+logic valid;
+logic [3:0] pointer;
 
-initial empty = 1'b1;
+initial valid = 1'b0;
 
 assign top_address = stack[pointer].pc;
 assign top_mask = stack[pointer].mask;
@@ -38,9 +38,9 @@ assign top_mask = stack[pointer].mask;
 always_ff @(posedge clk) begin
     unique case (stack_opcode) inside
         4'b0000: begin
-            if (empty) begin
-                empty <= 1'b0;
-                pointer <= 3'b0;
+            if (~valid) begin
+                valid <= 1'b1;
+                pointer <= 4'b0;
 
                 stack[0].r6 <= r1;
                 stack[0].r7 <= r2;
@@ -69,7 +69,7 @@ always_ff @(posedge clk) begin
         end
 
         [4'b1100:4'b1111]: begin
-            if (pointer == 0) empty <= 1'b1;
+            if (pointer == 0) valid <= 1'b0;
             else pointer <= pointer - 'b1;
         end
 

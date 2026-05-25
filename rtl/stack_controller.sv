@@ -65,7 +65,7 @@ always_ff @(posedge clk) begin
                     field_latch <= {op_type, stack_mask};
                 end
                 else begin
-                    if (stack_mask == 2'b11) begin
+                    if (inst_mask == 2'b11) begin
                         state <= push_67;
                         new_state <= exec;
                         new_pc <= pc + 10'b1;
@@ -99,10 +99,6 @@ always_ff @(posedge clk) begin
             state <= push_23;
             new_state <= exec;
             new_pc <= pc + 10'b1;
-        end
-
-        push_67, push_45, push_5, push_23: begin
-            state <= idle;
         end
 
         restore_7: begin

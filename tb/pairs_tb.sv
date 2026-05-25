@@ -24,7 +24,7 @@ always begin
 end
 
 // number of tests
-int itrs = 1;
+int itrs = 10;
 int min_pass = 0;
 int max_pass = 0;
 
@@ -82,9 +82,6 @@ $readmemb("../rtl/programs/pairs.bin", D1.instruction_memory_inst.mem);
     $display("cycles: %d", D1.counter);
 
 // check results in data_mem[66:67] and [68:69] (Minimum and Maximum distances, respectively)
-$display("results: min: %d, max: %d", {D1.dm.core[66],D1.dm.core[67]}, {D1.dm.core[68],D1.dm.core[69]});
-$display("mem: %p", D1.dm.core);
-$display("68: %d, 69: %d", D1.dm.core[68], D1.dm.core[69]);
     if(Min == {D1.dm.core[66],D1.dm.core[67]}) begin
         $display("good Min = %d",Min);     // your DUT put correct answer into core[66:67]
         min_pass++;
