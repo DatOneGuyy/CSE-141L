@@ -1,5 +1,5 @@
 rm obj_dir/test_arithmetic
-python ../assembly/assembler.py ../assembly/arithmetic.asm -b -o arithmetic
+python3 ../assembly/assembler.py ../assembly/arithmetic.asm -b -o arithmetic
 mv arithmetic.bin ../rtl/programs/arithmetic.bin
 verilator --binary -j 0 -o test_arithmetic --trace ../rtl/packages/types.sv ../rtl/*.sv ../tb/arithmetic_tb.sv
 rm obj_dir/*.h

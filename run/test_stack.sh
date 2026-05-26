@@ -1,5 +1,5 @@
 rm obj_dir/test_stack
-python ../assembly/assembler.py ../assembly/stack.asm -b -o stack
+python3 ../assembly/assembler.py ../assembly/stack.asm -b -o stack
 mv stack.bin ../rtl/programs/stack.bin
 verilator --binary -j 0 -o test_stack --trace ../rtl/packages/types.sv ../rtl/*.sv ../tb/stack_tb.sv
 rm obj_dir/*.h

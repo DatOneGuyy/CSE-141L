@@ -1,11 +1,11 @@
 cd ..
 cd assembly
 
-passed1=$(python interpreter.py hamming.asm | grep -c "Passed program 1")
-passed2=$(python interpreter.py pairs.asm | grep -c "Passed program 2")
-passed3=$(python interpreter.py multiply.asm | grep -c "Passed program 3")
-assembler_error=$(python assembler.py combined.asm | grep -c -i "ERROR")
-assembler_warn=$(python assembler.py combined.asm | grep -c -i "WARNING")
+passed1=$(python3 interpreter.py hamming.asm | grep -c "Passed program 1")
+passed2=$(python3 interpreter.py pairs.asm | grep -c "Passed program 2")
+passed3=$(python3 interpreter.py multiply.asm | grep -c "Passed program 3")
+assembler_error=$(python3 assembler.py combined.asm | grep -c -i "ERROR")
+assembler_warn=$(python3 assembler.py combined.asm | grep -c -i "WARNING")
 
 if [ "$passed1" -eq 1 ]; then
     echo "Passed program 1"
