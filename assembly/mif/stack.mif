@@ -1,0 +1,41 @@
+DEPTH = 1024;
+WIDTH = 9;
+ADDRESS_RADIX = DEC;
+DATA_RADIX = BIN;
+CONTENT
+BEGIN
+
+% Beginning of instruction memory %
+
+   0        : 000001001; % imm r1 1 %
+   1        : 000010010; % imm r2 2 %
+   2        : 000011011; % imm r3 3 %
+   3        : 000100100; % imm r4 4 %
+   4        : 000101101; % imm r5 5 %
+   5        : 000110110; % imm r6 6 %
+   6        : 000111111; % imm r7 -1 %
+   7        : 011000010; % xor r0 %
+   8        : 000001000; % push r4+ %
+   9        : 000100001; % imm r4 1 %
+  10        : 000101001; % imm r5 1 %
+  11        : 000110001; % imm r6 1 %
+  12        : 000111001; % imm r7 1 %
+  13        : 000100000; % pop %
+  14        : 000100010; % imm r4 2 %
+  15        : 000101010; % imm r5 2 %
+  16        : 011000111; % halt %
+[17..895]  : 000000000;
+
+% Beginning of label memory %
+
+ 896        : 000000000; % return %
+ 897        : 010000000; % Type: return %
+                         % Target: 0 %
+
+ 898        : 000000000; % #stack-test %
+ 899        : 001000000; % Type: unconditional %
+                         % Target: 0 %
+
+[900..1023] : 000000000;
+
+END;

@@ -1,0 +1,301 @@
+DEPTH = 1024;
+WIDTH = 9;
+ADDRESS_RADIX = DEC;
+DATA_RADIX = BIN;
+CONTENT
+BEGIN
+
+% Beginning of instruction memory %
+
+   0        : 011000010; % xor r0 %
+   1        : 010111000; % copy r7 %
+   2        : 001000100; % jump #t1-pass %
+   3        : 011000010; % xor r0 %
+   4        : 111111000; % store r7 %
+   5        : 001000101; % jump #test2-jumpz %
+   6        : 000001001; % imm r1 1 %
+   7        : 010000001; % copy r0 r1 %
+   8        : 111111000; % store r7 %
+   9        : 001000101; % jump #test2-jumpz %
+  10        : 011000010; % xor r0 %
+  11        : 001000110; % jumpz #t2-false-case %
+  12        : 001001000; % jump #t2-fail %
+  13        : 000010011; % imm r2 3 %
+  14        : 010000010; % copy r0 r2 %
+  15        : 001001001; % jumpz #t2-fail-z %
+  16        : 000001001; % imm r1 1 %
+  17        : 010000001; % copy r0 r1 %
+  18        : 111111001; % store r7 1 %
+  19        : 001001010; % jump #test3-jumpnz %
+  20        : 011000010; % xor r0 %
+  21        : 111111001; % store r7 1 %
+  22        : 001001010; % jump #test3-jumpnz %
+  23        : 000000011; % imm r0 3 %
+  24        : 001001011; % jumpnz #t3-false-case %
+  25        : 001001101; % jump #t3-fail %
+  26        : 011000010; % xor r0 %
+  27        : 001001110; % jumpnz #t3-fail-nz %
+  28        : 000001001; % imm r1 1 %
+  29        : 010000001; % copy r0 r1 %
+  30        : 111111010; % store r7 2 %
+  31        : 001001111; % jump #test4-jumplt %
+  32        : 011000010; % xor r0 %
+  33        : 111111010; % store r7 2 %
+  34        : 001001111; % jump #test4-jumplt %
+  35        : 000001011; % imm r1 3 %
+  36        : 000010101; % imm r2 5 %
+  37        : 100001010; % cmp r1 r2 %
+  38        : 001010000; % jumplt #t4-false-case %
+  39        : 001010010; % jump #t4-fail %
+  40        : 100010001; % cmp r2 r1 %
+  41        : 001010011; % jumplt #t4-fail-lt %
+  42        : 100010010; % cmp r2 r2 %
+  43        : 001010011; % jumplt #t4-fail-lt %
+  44        : 000001001; % imm r1 1 %
+  45        : 010000001; % copy r0 r1 %
+  46        : 111111011; % store r7 3 %
+  47        : 001010100; % jump #advance-ptr %
+  48        : 011000010; % xor r0 %
+  49        : 111111011; % store r7 3 %
+  50        : 001010100; % jump #advance-ptr %
+  51        : 000110100; % imm r6 4 %
+  52        : 110111110; % add r7 r6 %
+  53        : 010111000; % copy r7 %
+  54        : 001010101; % jump #test5-jumpgt %
+  55        : 000001101; % imm r1 5 %
+  56        : 000010011; % imm r2 3 %
+  57        : 100001010; % cmp r1 r2 %
+  58        : 001010110; % jumpgt #t5-false-case %
+  59        : 001011000; % jump #t5-fail %
+  60        : 100010001; % cmp r2 r1 %
+  61        : 001011001; % jumpgt #t5-fail-gt %
+  62        : 100001001; % cmp r1 r1 %
+  63        : 001011001; % jumpgt #t5-fail-gt %
+  64        : 000001001; % imm r1 1 %
+  65        : 010000001; % copy r0 r1 %
+  66        : 111111000; % store r7 %
+  67        : 001011010; % jump #test6-jumplts %
+  68        : 011000010; % xor r0 %
+  69        : 111111000; % store r7 %
+  70        : 001011010; % jump #test6-jumplts %
+  71        : 000001111; % imm r1 -1 %
+  72        : 000010011; % imm r2 3 %
+  73        : 100001010; % cmp r1 r2 %
+  74        : 001011011; % jumplts #t6-false-case %
+  75        : 001011101; % jump #t6-fail %
+  76        : 100010001; % cmp r2 r1 %
+  77        : 001011110; % jumplts #t6-fail-lts %
+  78        : 100001001; % cmp r1 r1 %
+  79        : 001011110; % jumplts #t6-fail-lts %
+  80        : 000001001; % imm r1 1 %
+  81        : 010000001; % copy r0 r1 %
+  82        : 111111001; % store r7 1 %
+  83        : 001011111; % jump #test7-jumpgts %
+  84        : 011000010; % xor r0 %
+  85        : 111111001; % store r7 1 %
+  86        : 001011111; % jump #test7-jumpgts %
+  87        : 000001011; % imm r1 3 %
+  88        : 000010111; % imm r2 -1 %
+  89        : 100001010; % cmp r1 r2 %
+  90        : 001100000; % jumpgts #t7-false-case %
+  91        : 001100010; % jump #t7-fail %
+  92        : 100010001; % cmp r2 r1 %
+  93        : 001100011; % jumpgts #t7-fail-gts %
+  94        : 100001001; % cmp r1 r1 %
+  95        : 001100011; % jumpgts #t7-fail-gts %
+  96        : 000001001; % imm r1 1 %
+  97        : 010000001; % copy r0 r1 %
+  98        : 111111010; % store r7 2 %
+  99        : 001100100; % jump #test8-jumppos %
+ 100        : 011000010; % xor r0 %
+ 101        : 111111010; % store r7 2 %
+ 102        : 001100100; % jump #test8-jumppos %
+ 103        : 000001101; % imm r1 5 %
+ 104        : 001100101; % jumppos #t8-false-case %
+ 105        : 001100111; % jump #t8-fail %
+ 106        : 000010111; % imm r2 -1 %
+ 107        : 010000010; % copy r0 r2 %
+ 108        : 001101000; % jumppos #t8-fail-pos %
+ 109        : 000001001; % imm r1 1 %
+ 110        : 010000001; % copy r0 r1 %
+ 111        : 111111011; % store r7 3 %
+ 112        : 001101001; % jump #end %
+ 113        : 011000010; % xor r0 %
+ 114        : 111111011; % store r7 3 %
+ 115        : 001101001; % jump #end %
+ 116        : 011000111; % halt %
+[117..895]  : 000000000;
+
+% Beginning of label memory %
+
+ 896        : 000000000; % return %
+ 897        : 010000000; % Type: return %
+                         % Target: 0 %
+
+ 898        : 000000000; % #hardware-test-start %
+ 899        : 001000000; % Type: unconditional %
+                         % Target: 0 %
+
+ 900        : 000000001; % #test1-jump %
+ 901        : 001000000; % Type: unconditional %
+                         % Target: 2 %
+
+ 902        : 000000001; % #t1-fail %
+ 903        : 101000000; % Type: unconditional %
+                         % Target: 3 %
+
+ 904        : 000000011; % #t1-pass %
+ 905        : 001000000; % Type: unconditional %
+                         % Target: 6 %
+
+ 906        : 000000101; % #test2-jumpz %
+ 907        : 001000000; % Type: unconditional %
+                         % Target: 10 %
+
+ 908        : 000000110; % #t2-false-case %
+ 909        : 100100000; % Type: zero %
+                         % Target: 13 %
+
+ 910        : 000001000; % #t2-pass %
+ 911        : 001000000; % Type: unconditional %
+                         % Target: 16 %
+
+ 912        : 000001010; % #t2-fail %
+ 913        : 001000000; % Type: unconditional %
+                         % Target: 20 %
+
+ 914        : 000001010; % #t2-fail-z %
+ 915        : 000100000; % Type: zero %
+                         % Target: 20 %
+
+ 916        : 000001011; % #test3-jumpnz %
+ 917        : 101000000; % Type: unconditional %
+                         % Target: 23 %
+
+ 918        : 000001101; % #t3-false-case %
+ 919        : 000010000; % Type: nonzero %
+                         % Target: 26 %
+
+ 920        : 000001110; % #t3-pass %
+ 921        : 001000000; % Type: unconditional %
+                         % Target: 28 %
+
+ 922        : 000010000; % #t3-fail %
+ 923        : 001000000; % Type: unconditional %
+                         % Target: 32 %
+
+ 924        : 000010000; % #t3-fail-nz %
+ 925        : 000010000; % Type: nonzero %
+                         % Target: 32 %
+
+ 926        : 000010001; % #test4-jumplt %
+ 927        : 101000000; % Type: unconditional %
+                         % Target: 35 %
+
+ 928        : 000010100; % #t4-false-case %
+ 929        : 000000100; % Type: less than %
+                         % Target: 40 %
+
+ 930        : 000010110; % #t4-pass %
+ 931        : 001000000; % Type: unconditional %
+                         % Target: 44 %
+
+ 932        : 000011000; % #t4-fail %
+ 933        : 001000000; % Type: unconditional %
+                         % Target: 48 %
+
+ 934        : 000011000; % #t4-fail-lt %
+ 935        : 000000100; % Type: less than %
+                         % Target: 48 %
+
+ 936        : 000011001; % #advance-ptr %
+ 937        : 101000000; % Type: unconditional %
+                         % Target: 51 %
+
+ 938        : 000011011; % #test5-jumpgt %
+ 939        : 101000000; % Type: unconditional %
+                         % Target: 55 %
+
+ 940        : 000011110; % #t5-false-case %
+ 941        : 000000010; % Type: greater than %
+                         % Target: 60 %
+
+ 942        : 000100000; % #t5-pass %
+ 943        : 001000000; % Type: unconditional %
+                         % Target: 64 %
+
+ 944        : 000100010; % #t5-fail %
+ 945        : 001000000; % Type: unconditional %
+                         % Target: 68 %
+
+ 946        : 000100010; % #t5-fail-gt %
+ 947        : 000000010; % Type: greater than %
+                         % Target: 68 %
+
+ 948        : 000100011; % #test6-jumplts %
+ 949        : 101000000; % Type: unconditional %
+                         % Target: 71 %
+
+ 950        : 000100110; % #t6-false-case %
+ 951        : 000000101; % Type: signed less than %
+                         % Target: 76 %
+
+ 952        : 000101000; % #t6-pass %
+ 953        : 001000000; % Type: unconditional %
+                         % Target: 80 %
+
+ 954        : 000101010; % #t6-fail %
+ 955        : 001000000; % Type: unconditional %
+                         % Target: 84 %
+
+ 956        : 000101010; % #t6-fail-lts %
+ 957        : 000000101; % Type: signed less than %
+                         % Target: 84 %
+
+ 958        : 000101011; % #test7-jumpgts %
+ 959        : 101000000; % Type: unconditional %
+                         % Target: 87 %
+
+ 960        : 000101110; % #t7-false-case %
+ 961        : 000000011; % Type: signed greater than %
+                         % Target: 92 %
+
+ 962        : 000110000; % #t7-pass %
+ 963        : 001000000; % Type: unconditional %
+                         % Target: 96 %
+
+ 964        : 000110010; % #t7-fail %
+ 965        : 001000000; % Type: unconditional %
+                         % Target: 100 %
+
+ 966        : 000110010; % #t7-fail-gts %
+ 967        : 000000011; % Type: signed greater than %
+                         % Target: 100 %
+
+ 968        : 000110011; % #test8-jumppos %
+ 969        : 101000000; % Type: unconditional %
+                         % Target: 103 %
+
+ 970        : 000110101; % #t8-false-case %
+ 971        : 000001000; % Type: positive %
+                         % Target: 106 %
+
+ 972        : 000110110; % #t8-pass %
+ 973        : 101000000; % Type: unconditional %
+                         % Target: 109 %
+
+ 974        : 000111000; % #t8-fail %
+ 975        : 101000000; % Type: unconditional %
+                         % Target: 113 %
+
+ 976        : 000111000; % #t8-fail-pos %
+ 977        : 100001000; % Type: positive %
+                         % Target: 113 %
+
+ 978        : 000111010; % #end %
+ 979        : 001000000; % Type: unconditional %
+                         % Target: 116 %
+
+[980..1023] : 000000000;
+
+END;

@@ -9,4 +9,5 @@ rm obj_dir/*.d
 rm obj_dir/*.o
 rm obj_dir/*.dat
 rm obj_dir/*.mk
+rm obj_dir/*.gch
 ./obj_dir/test_arithmetic

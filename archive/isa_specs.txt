@@ -1,17 +1,19 @@
-9.86KB instruction memory:
+tentative design
+
+instruction memory:
 three sections
     - 1024 instructions x 9 bits (8 bit pc)
     - 64 entries x 10 bits constant address memory (6 bit addressing)
     - address format:
         | address (8) | linked (1) | conditional (1) |  
 
-64b register file:
+register file:
 8 registers x 8 bits (3 bit addressing)
 
-2.00KB data memory:
+data memory:
     - 256 entries x 8 bits (8 bit addressing)
 
-1.09KB stack:
+stack:
     - block layout: 
         - 7 registers x 8 bits
         - 1 mask register x 2 bits
