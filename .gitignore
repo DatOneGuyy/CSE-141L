@@ -6,3 +6,4 @@ test_alu
 test_data_memory
 run/obj_dir
 ./venv
+verilator

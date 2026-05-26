@@ -1,7 +1,7 @@
 module stack_tb;
 
 bit clk;
-logic start;
+bit start = 1'b1;
 logic done;
 DUT dut(.*);
 
@@ -14,7 +14,7 @@ function void display_info();
 endfunction
 
 function void display_stack();
-    $display("Stack: [%d, %d, %d, %d, %d, %d], pc: %d, empty: %d, pointer: %d", dut.stack_inst.stack[0].r2, dut.stack_inst.stack[0].r3, dut.stack_inst.stack[0].r4, dut.stack_inst.stack[0].r5, dut.stack_inst.stack[0].r6, dut.stack_inst.stack[0].r7, dut.stack_inst.stack[0].pc, dut.stack_inst.empty, dut.stack_inst.pointer);
+    $display("Stack: [%d, %d, %d, %d, %d, %d], pc: %d, valid: %d, pointer: %d", dut.stack_inst.stack[0].r2, dut.stack_inst.stack[0].r3, dut.stack_inst.stack[0].r4, dut.stack_inst.stack[0].r5, dut.stack_inst.stack[0].r6, dut.stack_inst.stack[0].r7, dut.stack_inst.stack[0].pc, dut.stack_inst.valid, dut.stack_inst.pointer);
 endfunction
 
 task automatic advance_clk();
@@ -38,25 +38,25 @@ initial begin
     $dumpvars(0, top_tb);
 
     $display("Starting top-level testbench");
-    start = 1'b1;
+    start = 1'b0;
     advance_clk();
 
     #10 clk = ~clk;
-    $display("Instruction number: %d", count++);
+    $display("Cycle: %d", count++);
     display_info();
 
     forever begin
         advance_clk();
 
         if (debug_pause) begin
-            //$display("top-level inspection: is_stack_op: %b, current_state: %d, new_state: %d, register_write_data: %d, mem_write_en: %b, mem_out: %d, alu_out: %d", dut.is_stack_op, dut.current_state, dut.new_state, dut.register_write_data, dut.mem_write_en, dut.mem_out, dut.alu_out);
-            //$display("controller inspection: start_stack: %b, opcode: %b, mask: %b, op_type: %b, stack_state: %d", dut.start_stack, dut.stack_opcode, dut.stack_controller_mask, dut.stack_controller_inst.op_type, dut.stack_controller_inst.state);
-            //$display("stack inspection: [r1, r2]: [%d, %d], empty: %b", dut.stack_inst.r1, dut.stack_inst.r2, dut.stack_inst.empty);
+            $display("top-level inspection: is_stack_op: %b, current_state: %d, new_state: %d, register_write_data: %d, mem_write_en: %b, mem_out: %d, alu_out: %d, new_pc: %d, flags: %b, %d vs %d", dut.is_stack_op, dut.current_state, dut.new_state, dut.register_write_data, dut.mem_write_en, dut.mem_out, dut.alu_out, dut.new_pc, dut.alu_inst.r1_u < dut.alu_inst.r2_u, dut.alu_inst.r1, dut.alu_inst.r2);
+            $display("controller inspection: start_stack: %b, opcode: %b, mask: %b, op_type: %b, stack_state: %d", dut.start_stack, dut.stack_opcode, dut.stack_controller_mask, dut.stack_controller_inst.op_type, dut.stack_controller_inst.state);
+            $display("stack inspection: [r1, r2]: [%d, %d], valid: %b", dut.stack_inst.r1, dut.stack_inst.r2, dut.stack_inst.valid);
         end
 
         $display("Instruction number: %d", count++);
-        //display_info();
-        //display_stack();
+        display_info();
+        display_stack();
         $display();
 
         if (done) begin

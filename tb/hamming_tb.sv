@@ -97,6 +97,7 @@ initial begin
 	if(loop_ct==itrs-1) begin
         $display("Minimum correct %d/%d", min_pass, itrs);
         $display("Maximum correct %d/%d", max_pass, itrs);
+        $display("Cycles: %d", D1.counter);
         $stop;
 	end
 	#200ns start = 'b0;

@@ -215,7 +215,7 @@ register_control_mux register_control_mux_inst(
 
 types::states current_state;
 initial begin
-    current_state = halted;
+    current_state = waiting;
 end
 
 int counter = 0;
@@ -242,11 +242,19 @@ always_ff @(posedge clk) begin
         end
 
         halted: begin
-            if (~start) begin
-                current_state <= exec;
-                pc <= 10'b0;
+            if (start) begin
+                current_state <= waiting;
             end
         end
+        
+        waiting: begin
+            if (~start) begin
+                $display("starting program execution");
+                current_state <= exec;
+                counter <= 'b0;
+                pc <= pc + 'b1;
+            end
+        end 
 
         default: current_state <= halted;
     endcase
