@@ -1,6 +1,6 @@
 import types::*;
 
-module top (
+module DUT (
     input logic clk,
     input logic start,
 
@@ -119,7 +119,7 @@ alu alu_inst(
 
 //data memory signals
 logic [7:0] mem_out;
-data_memory data_memory_inst(
+data_memory dm(
     .clk(clk),
     .address(alu_out),
     .data_in(read2_result),
@@ -161,7 +161,6 @@ logic [2:0] read2_src_stack;
 logic [2:0] write_dest_stack;
 logic reg_write_en_stack;
 
-logic stack_override;
 logic [9:0] new_pc_stack;
 types::states new_state;
 stack_controller stack_controller_inst(
@@ -177,7 +176,6 @@ stack_controller stack_controller_inst(
     .read2_src(read2_src_stack),
     .write_dest(write_dest_stack),
     .reg_write_en(reg_write_en_stack),
-    .stack_override(stack_override),
     .new_pc(new_pc_stack),
     .new_state(new_state)
 );
@@ -217,10 +215,12 @@ register_control_mux register_control_mux_inst(
 
 types::states current_state;
 initial begin
-    current_state = halted;
+    current_state = waiting;
 end
 
+int counter = 0;
 always_ff @(posedge clk) begin
+    //$display("pc: %d, inst: %b, npc: %d", pc, instruction, new_pc);
     unique case (current_state)
         exec: begin
             if (instruction == 9'b011000111) begin
@@ -232,19 +232,29 @@ always_ff @(posedge clk) begin
             else begin
                 pc <= new_pc;
             end
+            counter <= counter + 32'b1;
         end
 
         stack: begin
             pc <= new_pc_stack;
             current_state <= new_state;
+            counter <= counter + 32'b1;
         end
 
         halted: begin
             if (start) begin
-                current_state <= exec;
-                pc <= 10'b0;
+                current_state <= waiting;
             end
         end
+        
+        waiting: begin
+            if (~start) begin
+                $display("starting program execution");
+                current_state <= exec;
+                counter <= 'b0;
+                pc <= pc + 'b1;
+            end
+        end 
 
         default: current_state <= halted;
     endcase

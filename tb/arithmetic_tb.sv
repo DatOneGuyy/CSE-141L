@@ -3,14 +3,14 @@ module arithmetic_tb;
 bit clk;
 logic start;
 logic done;
-top dut(.*);
+DUT dut(.*);
 
 function void display_info();
     $display("State at start of cycle:");
     $display("PC: %d", dut.pc);
     $display("Instruction: %b", dut.instruction);
     $display("Registers: [%d, %d, %d, %d, %d, %d, %d, %d]", dut.register_file_inst.registers[0], dut.register_file_inst.registers[1], dut.register_file_inst.registers[2], dut.register_file_inst.registers[3], dut.register_file_inst.registers[4], dut.register_file_inst.registers[5], dut.register_file_inst.registers[6], dut.register_file_inst.registers[7]);
-    $display("Memory contents: [%d, %d, %d, %d, %d, %d, %d, %d, %d, %d]", dut.data_memory_inst.core[0], dut.data_memory_inst.core[1], dut.data_memory_inst.core[2], dut.data_memory_inst.core[3], dut.data_memory_inst.core[4], dut.data_memory_inst.core[5], dut.data_memory_inst.core[6], dut.data_memory_inst.core[7], dut.data_memory_inst.core[8], dut.data_memory_inst.core[9], );
+    $display("Memory contents: [%d, %d, %d, %d, %d, %d, %d, %d, %d, %d]", dut.dm.core[0], dut.dm.core[1], dut.dm.core[2], dut.dm.core[3], dut.dm.core[4], dut.dm.core[5], dut.dm.core[6], dut.dm.core[7], dut.dm.core[8], dut.dm.core[9], );
     $display();
 endfunction
 
@@ -27,7 +27,7 @@ initial begin
 end
 
 logic [9:0] arithmetic_results;
-assign arithmetic_results = {dut.data_memory_inst.core[0] == 8'd5, dut.data_memory_inst.core[1] == 8'd3, dut.data_memory_inst.core[2] == 8'd5, dut.data_memory_inst.core[3] == 8'd2, dut.data_memory_inst.core[4] == 8'd8, dut.data_memory_inst.core[5] == 8'd2, dut.data_memory_inst.core[6] == 8'd255, dut.data_memory_inst.core[7] == 8'd4, dut.data_memory_inst.core[8] == 8'd2, dut.data_memory_inst.core[9] == 8'd1};
+assign arithmetic_results = {dut.dm.core[0] == 8'd5, dut.dm.core[1] == 8'd3, dut.dm.core[2] == 8'd5, dut.dm.core[3] == 8'd2, dut.dm.core[4] == 8'd8, dut.dm.core[5] == 8'd2, dut.dm.core[6] == 8'd255, dut.dm.core[7] == 8'd4, dut.dm.core[8] == 8'd2, dut.dm.core[9] == 8'd1};
 
 initial begin 
     $dumpfile("../dump/top_dump.vcd");

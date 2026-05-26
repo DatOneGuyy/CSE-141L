@@ -25,7 +25,6 @@ module stack_controller (
     output logic reg_write_en,
 
     //to top-level module
-    output logic stack_override,
     output logic [9:0] new_pc,
     output states new_state
 );
@@ -58,8 +57,6 @@ always_ff @(posedge clk) begin
     unique case (state)
         idle: begin
             if (start) begin
-                stack_override <= 1'b1;
-
                 //field latch determines what operations to cycle through
                 //mask is chosen from stack for pops, from instruction for pushes
                 //op type always comes from instruction
@@ -68,11 +65,10 @@ always_ff @(posedge clk) begin
                     field_latch <= {op_type, stack_mask};
                 end
                 else begin
-                    if (stack_mask == 2'b11) begin
+                    if (inst_mask == 2'b11) begin
                         state <= push_67;
                         new_state <= exec;
                         new_pc <= pc + 10'b1;
-                        stack_override <= 1'b0;
                     end
                     else begin
                         state <= save_67;
@@ -88,23 +84,21 @@ always_ff @(posedge clk) begin
                 state <= push_5;
                 new_state <= exec;
                 new_pc <= pc + 10'b1;
-                stack_override <= 1'b0;
             end
             else if (field_latch[1:0] == 2'b01) begin
                 state <= push_45;
                 new_state <= exec;
                 new_pc <= pc + 10'b1;
-                stack_override <= 1'b0;
             end
             else begin
                 state <= save_45;
             end
         end
 
-        save_45: state <= push_23;
-
-        push_67, push_45, push_5, push_23: begin
-            state <= idle;
+        save_45: begin
+            state <= push_23;
+            new_state <= exec;
+            new_pc <= pc + 10'b1;
         end
 
         restore_7: begin
@@ -112,7 +106,6 @@ always_ff @(posedge clk) begin
                 state <= pop_6;
                 new_state <= exec;
                 new_pc <= pc + 10'b1;
-                stack_override <= 1'b0;
             end
             else begin
                 state <= restore_6;
@@ -124,7 +117,6 @@ always_ff @(posedge clk) begin
                 state <= pop_5;
                 new_state <= exec;
                 new_pc <= pc + 10'b1;
-                stack_override <= 1'b0;
             end
             else begin
                 state <= restore_5;
@@ -136,7 +128,6 @@ always_ff @(posedge clk) begin
                 state <= pop_4;
                 new_state <= exec;
                 new_pc <= pc + 10'b1;
-                stack_override <= 1'b0;
             end
             else begin
                 state <= restore_4;
@@ -148,13 +139,11 @@ always_ff @(posedge clk) begin
             state <= pop_2;
             new_state <= exec;
             new_pc <= pc + 10'b1;
-            stack_override <= 1'b0;
         end
         
         //covers push_5, push_23, pop_6, pop_5, pop_4, and pop_2
         default: begin
             state <= idle;
-            stack_override <= 1'b0;
         end
     endcase
 end

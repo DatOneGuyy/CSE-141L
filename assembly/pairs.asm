@@ -41,11 +41,12 @@
 
     //move r0 to r2
     copy r2
-    imm r0 4
+    copy r0 r3
+    imm r3 6
     add r3 r0 
-    copy r3 //stores address 66
+    copy r3 //stores address 68
 
-    //write subtraction result to mem[66-67]
+    //write subtraction result to mem[68-69]
     copy r0 r2
     store r3
     copy r0 r1
@@ -122,9 +123,10 @@
     cmp r2 r3
     jumplt #difference-loop-start
 
-    //write to addresses 68-69
+    //write to addresses 66-67
     imm r1 4
     lshift r1 4
+    imm r1 2
     add r0 r1
     copy r1
     copy r0 r6

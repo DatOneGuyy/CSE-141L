@@ -1,7 +1,7 @@
 package types;
 
 typedef enum logic [1:0] {
-    exec, stack, halted
+    exec, stack, halted, waiting
 } states;
 
 typedef enum logic [3:0] {

@@ -15,19 +15,27 @@ module alu (
     output logic write_flags_en
 );
 
-logic signed [7:0] r1_s = r1;
-logic signed [7:0] r2_s = r2;
+logic signed [7:0] r1_s; 
+logic signed [7:0] r2_s;
+assign r1_s = r1;
+assign r2_s = r2;
+
 logic unsigned [7:0] r1_u = r1;
 logic unsigned [7:0] r2_u = r2;
+assign r1_u = r1;
+assign r2_u = r2;
 
 always_comb begin
+    write_flags_en = 1'b0;
+    alu_out = 8'b0;
+
     unique case (opcode)
         3'b110: begin
             {alu_flags[4], alu_out} = r1 + r2;
             write_flags_en = 1'b1;
         end
         3'b100: begin
-            alu_flags[3:0] = {r1_u < r2_u, r1_u > r2_u, r1_s < r2_s, r1_s > r2_s};
+            alu_flags = {1'b0, r1_u < r2_u, r1_u > r2_u, r1_s < r2_s, r1_s > r2_s};
             write_flags_en = 1'b1;
         end
         3'b010: alu_out = r2;
@@ -58,8 +66,7 @@ always_comb begin
             endcase
         end
         3'b111: begin
-            {alu_flags[4], alu_out} = r1 + {6'b0, imm[1:0]};
-            write_flags_en = 1'b1;
+            alu_out = r1 + {6'b0, imm[1:0]};
         end
         3'b011: begin
             unique case (funct)

@@ -286,14 +286,17 @@ while pc < len(data):
 
             print(f"Registers: {registers}")
         case "push":
+            counter += 1
             frame = registers[1:]
             frame.append(int(tokens[1][1]))
 
             stack.append(frame)
             if len(stack) > max_depth:
                 max_depth = len(stack)
+            counter += ((8 - int(tokens[1][1])) >> 1)
             print(f"Stack: {stack}")
         case "pop":
+            counter += 1
             items = stack.pop()
             print(f"Popped {items} from the stack")
 
@@ -304,6 +307,7 @@ while pc < len(data):
             zero = (registers[0] == 0)
             negative = get2c(registers[0] & 0xFF) < 0
 
+            counter += ((8 - items[7]))
             print(f"Registers: {registers}")
             print(f"Stack: {stack}")
         case "call":
@@ -391,7 +395,7 @@ while pc < len(data):
     pc += 1
 end = time.perf_counter()
 print(f"Simulation time: {end - start:.6f} seconds")
-print(f"Instructions executed: {counter}")
+print(f"Cycles: {counter}")
 print(f"Flag count: {flag_count}")
 print(f"Max stack depth: {max_depth}")
 print(f"Original bytes: {input_memory}")
