@@ -21,7 +21,7 @@ end
 initial begin
     // load operands for program 1 into data memory
     // 32 double-precision operands go into data_mem [0:63]
-    // first operand = {data_mem[0],data_mem[1]}  
+    // first operand = {data_mem[0], data_mem[1]}  
     // endian order doesn't matter for program 1, as long as consistent for all values (why?)
     // 1: min & max Hamming distances in double precision data pairs
     #100ns;
@@ -30,7 +30,7 @@ initial begin
     Max = 'd0;						         // start test bench Max at min value
 
     //load memory and instructions
-    $readmemb("../test_files/test1_2.txt",D1.dm.core);
+    $readmemb("../test_files/test1_2.txt", D1.dm.core);
     $readmemb("../rtl/programs/combined.bin", D1.instruction_memory_inst.mem);
 
     for (int i = 0; i < 32; i++) begin
@@ -45,7 +45,7 @@ initial begin
     // compute correct answers
     for (int j = 0; j < 32; j++) begin
         for (int k = j + 1; k < 32; k++) begin
-            #1ns Dist = ham(Tmp[j],Tmp[k]);
+            #1ns Dist = ham(Tmp[j], Tmp[k]);
             //$display("dist = %d", Dist); 
 
             if (Dist < Min) begin                    // update Hamming minimum
@@ -130,11 +130,10 @@ initial begin
     $display("cycle count: %d", D1.counter);
 
     // check results in data_mem[66:67] and [68:69] (Minimum and Maximum distances, respectively)
-    $display("actual min: %d, max: %d", {D1.dm.core[66],D1.dm.core[67]}, {D1.dm.core[68],D1.dm.core[69]});
     if (Min == {D1.dm.core[66], D1.dm.core[67]})
         $display("good Min = %d", Min); // your DUT put correct answer into core[66:67]
     else  
-        $display("fail Min = %d, yours = %d", Min, {D1.dm.core[66],D1.dm.core[67]}); // your DUT put wrong answer into core[66:67]
+        $display("fail Min = %d, yours = %d", Min, {D1.dm.core[66], D1.dm.core[67]}); // your DUT put wrong answer into core[66:67]
     $display("Min addr = %d, %d", Min1, Min2);
     $display("Min valu = %d %d", Tmp[Min1], Tmp[Min2]);
     // {D1.dm.core[2 * Min1], D1.dm.core[2 * Min1 + 1]}, {D1.dm.core[2 * Min2], D1.dm.core[2 * Min2 + 1]});
