@@ -4,18 +4,6 @@
 **Instruction width:** 9 bits
 **Class:** Load–store accumulator machine
 
-## Overview
-
-Sisyphus is a load–store architecture: data must be loaded into a register
-before any operation can be performed on it. Register `r0` (the *zero
-register*) doubles as an accumulator — most arithmetic and logic results are
-written there, and many instructions also read it implicitly as one of their
-operands.
-
-The defining constraint of the design is the 9-bit instruction width. The ISA
-is built around supporting function calls and a hardware stack within that
-width, which also keeps overall memory requirements low.
-
 ## Register Model
 
 - **8 general-purpose registers** (`r0`–`r7`), each **8 bits** wide.
